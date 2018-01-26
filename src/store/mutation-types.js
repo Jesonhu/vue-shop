@@ -1,0 +1,3 @@
+export const SET_SKU_STATUS = 'SET_SKU_STATUS';
+
+export const SET_CHOSEN_CONTACT_ID = 'SET_CHOSEN_CONTACT_ID';
