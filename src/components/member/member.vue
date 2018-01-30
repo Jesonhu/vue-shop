@@ -1,6 +1,18 @@
 <template>
   <div>
-    <img class="user-poster" src="https://img.yzcdn.cn/public_files/2017/10/23/8690bb321356070e0b8c4404d087f8fd.png">
+    <div class="user-container">
+      <img class="user-poster" src="https://img.yzcdn.cn/public_files/2017/10/23/8690bb321356070e0b8c4404d087f8fd.png">
+      <div class="avatar">
+        <div v-if="!userInfo">
+          <img src="./user_head.png">
+          <div class="login-btn" @click="showLoginModal">登陆</div>
+        </div>
+        <div v-if="userInfo" class="avatar-wrapper">
+          <img v-lazy="userInfo.avatar"/>
+          <div class="username"> {{ userInfo.username }}</div>
+        </div>
+      </div>
+    </div>
     <van-row class="user-links">
       <van-col span="6" class="links-item" @click.native="toOrderPage">
         <van-icon name="pending-payment"/>
@@ -21,10 +33,10 @@
     </van-row>
 
     <van-cell-group class="user-group">
-      <van-cell  class=".van-cell__right-icon group-item"
-                 icon="records" title="全部订单"
-                 is-link
-                 @click.native="toOrderPage"/>
+      <van-cell class=".van-cell__right-icon group-item"
+                icon="records" title="全部订单"
+                is-link
+                @click.native="toOrderPage"/>
     </van-cell-group>
 
     <van-cell-group class="user-group">
@@ -34,19 +46,38 @@
       <router-link to="/coupon">
         <van-cell class="group-item" icon="gold-coin" title="我的优惠券" is-link/>
       </router-link>
-      <van-cell class="group-item" icon="gift" title="设置" is-link/>
+      <router-link to="/setting">
+        <van-cell class="group-item" icon="gift" title="设置" is-link/>
+      </router-link>
     </van-cell-group>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import { mapMutations, mapGetters } from 'vuex';
   import { Row, Col, Icon, Cell, CellGroup } from 'vant';
+  import { getUserInfo } from 'common/js/cache';
 
   export default {
+    created() {
+      this.setUserInfo(getUserInfo());
+    },
+    computed: {
+      ...mapGetters([
+        'userInfo'
+      ])
+    },
     methods: {
       toOrderPage() {
         this.$router.push('/order');
-      }
+      },
+      showLoginModal() {
+        this.setLoginModal(true);
+      },
+      ...mapMutations({
+        setLoginModal: 'SET_LOGIN_MODAL',
+        setUserInfo: 'SET_USER_INFO'
+      })
     },
     components: {
       [Row.name]: Row,
@@ -61,11 +92,32 @@
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
 
-  .user-poster
-    width: 100vw
-    height: 4rem
-    display: block
-
+  .user-container
+    position: relative
+    .user-poster
+      width: 100vw
+      height: 4rem
+      display: block
+    .avatar
+      position: absolute
+      top: 50%
+      left: 50%
+      transform: translate(-50%, -50%)
+      img
+        width: 1.6rem
+        height: 1.6rem
+        border-radius: 50%
+      .login-btn
+        width: 1.6rem
+        height: .4rem
+        line-height: .4rem
+        text-align: center
+        border: 1px solid #333
+        border-radius: 5px
+        font-size: $font-size-medium
+        background: $color-text
+      .avatar-wrapper
+        font-size: $font-size-medium
   .user-group
     margin-bottom: .3rem
     .group-item

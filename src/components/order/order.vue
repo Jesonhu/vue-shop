@@ -71,14 +71,14 @@
     z-index: $zIndex-s
     background: $color-background
     .order-wrapper
-      margin-top: 5px
-      padding: 0 10px
+      margin-top: .1rem
+      padding: 0 .2rem
       background: $color-text
       .order-title
         position: relative
         overflow: hidden
-        height: 35px
-        line-height: 35px
+        height: .7rem
+        line-height: .7rem
         font-size: $font-size-medium
         &::after
           border-bottom-1px(#d6d6d6)
@@ -90,17 +90,17 @@
       .time-quantity-price
         display: flex
         align-items: center
-        height: 30px
+        height: .6rem
         font-size: $font-size-small
         .time
           flex: 1
           color: #ff8017
         .quantity
-          flex: 0 0 60px
+          flex: 0 0 1.2rem
           .active
             color: #fb5627
         .price
-          flex: 0 0 100px
+          flex: 0 0 2rem
           .active
             color: #fb5627
       .btns-group
@@ -108,7 +108,7 @@
         display: flex
         align-items: center
         justify-content: flex-end
-        height: 50px
+        height: 1rem
         .btn-item
-          margin: 0 3px
+          margin: 0 .06rem
 </style>

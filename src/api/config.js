@@ -1,0 +1,90 @@
+import axios from 'axios';
+import qs from 'qs';
+import { Toast } from 'vant';
+import Router from '../router';
+
+export const ERR_OK = 1;
+
+export const ERR_ERROR = 2;
+
+export const TOKEN_FAIL = 422;
+
+export const SERVER_ERROR = 500;
+
+export function configHttp() {
+  axios.defaults.timeout = 10000;
+  axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+  let host = window.location.host;
+  switch (host) {
+    case 'test.omengo.com':
+      axios.defaults.baseURL = 'http://test.omengo.com';
+      break;
+    case 'test.jfinalshop.com':
+      axios.defaults.baseURL = 'http://test.jfinalshop.com';
+      break;
+    case 'localhost:8080' :
+      // axios.defaults.baseURL = 'http://192.168.9.43:8089';
+      axios.defaults.baseURL = 'http://192.168.9.43:8060'; // 新版
+      // axios.defaults.baseURL = 'http://192.168.9.33:8080'; // 元哥
+      // axios.defaults.baseURL = 'http://192.168.9.31:8080'; // 啊聪
+      // axios.defaults.baseURL = 'http://test.omengo.com';
+      // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
+      break;
+    case 'localhost:8081' :
+      axios.defaults.baseURL = 'http://192.168.9.43:8089';
+      // axios.defaults.baseURL = 'http://192.168.9.33:8080'; // 元哥
+      // axios.defaults.baseURL = 'http://192.168.9.31:8080'; // 啊聪
+      // axios.defaults.baseURL = 'http://test.omengo.com';
+      // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
+      break;
+    case '192.168.9.76:8080':
+      // axios.defaults.baseURL = 'http://192.168.9.43:8089';
+      axios.defaults.baseURL = 'http://192.168.9.33:8080'; // 元哥
+      // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
+      break;
+    case '192.168.9.76:8081':
+      axios.defaults.baseURL = 'http://192.168.9.43:8089';
+      // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
+      break;
+    default:
+      // axios.defaults.baseURL = 'http://www.omengo.com';
+      // axios.defaults.baseURL = 'http://192.168.9.43:8089';
+      axios.defaults.baseURL = 'http://www.omengo.com';
+  }
+  axios.interceptors.request.use((config) => {
+    Toast.loading({ mask: true, duration: 0 });
+    if (config.method === 'post') {
+      config.data = qs.stringify(config.data);
+    }
+    return config;
+  }, (error) => {
+    Toast('参数错误!');
+    return Promise.reject(error);
+  });
+
+  axios.interceptors.response.use(function (response) {
+    Toast.clear();
+    /**
+     * ERR_ERROR 都为错误状态码
+     */
+    if (response.data.code === ERR_ERROR) {
+      Toast(response.data.message);
+    }
+
+    if (response.data.code === TOKEN_FAIL) {
+      Toast(response.data.message);
+      Router.push('/personal');
+      window.location.reload();
+    }
+
+    if (response.data.code === SERVER_ERROR) {
+      Toast(response.data.message);
+    }
+
+    return response;
+  }, function (error) {
+    // Do something with response error
+    Toast('您的网络差,请稍后重试!');
+    return Promise.reject(error);
+  });
+};

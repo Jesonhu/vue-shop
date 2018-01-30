@@ -6,6 +6,7 @@
     <Tabbar></Tabbar>
     <shopcart-icon></shopcart-icon>
     <sku></sku>
+    <login></login>
   </div>
 </template>
 
@@ -13,12 +14,14 @@
   import Tabbar from 'components/tabbar/tabbar';
   import ShopcartIcon from 'components/shopcart-icon/shopcart-icon';
   import Sku from 'base/sku/sku';
+  import Login from 'components/login/login';
 
   export default {
     components: {
       Tabbar,
       ShopcartIcon,
-      Sku
+      Sku,
+      Login
     }
   };
 </script>

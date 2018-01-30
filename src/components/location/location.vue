@@ -1,7 +1,7 @@
 <template>
   <transition name="slide">
     <div class="location-container">
-      <navbar></navbar>
+      <navbar title="店铺选择"></navbar>
       <div class="city-wrapper">
         <div class="city">佛山市</div>
         <div class="search-wrapper">

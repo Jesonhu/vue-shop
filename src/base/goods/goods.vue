@@ -55,8 +55,8 @@
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  @import '~common/stylus/variable'
-  @import '~common/stylus/mixin'
+  @import '~common/stylus/variable.styl'
+  @import '~common/stylus/mixin.styl'
 
   .goods-wrapper
     display: inline-block
@@ -66,10 +66,10 @@
     background: $color-text
     &.normal
       width: 35vw
-      height: 3rem
+      height: 3.4rem
     &.medium
-      width: 47.5vw
-      margin: .05rem
+      width: 47vw
+      margin: .1rem
     &.category
       display: flex
     .goods-img-wrapper
@@ -98,7 +98,7 @@
         &.category
           width: 3rem
         .name
-          font-size: .26rem
+          font-size: $font-size-medium
           font-weight: normal
       .unit
         font-size: $font-size-small
@@ -108,8 +108,8 @@
         color: $color-price
     .add-img
       position: absolute
-      right: .1rem
-      bottom: .1rem
+      right: .2rem
+      bottom: .2rem
       width: .5rem
       height: .5rem
     .promotions

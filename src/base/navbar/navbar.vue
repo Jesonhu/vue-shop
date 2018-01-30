@@ -1,6 +1,6 @@
 <template>
   <van-nav-bar
-    title="标题"
+    :title="title"
     left-text="返回"
     :right-text="rightText"
     left-arrow
@@ -17,6 +17,10 @@
       rightText: {
         type: String,
         default: null
+      },
+      title: {
+        type: String,
+        default: '标题'
       }
     },
     methods: {

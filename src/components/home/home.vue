@@ -16,19 +16,19 @@
         </van-swipe>
 
         <div class="services">
-          <div class="service-item">
+          <div class="service-item" @click="toHomeGoodsPage()">
             <img src="./ic_home_often.png" />
             <span>我常买</span>
           </div>
-          <div class="service-item">
+          <div class="service-item" @click="toHomeGoodsPage()">
             <img src="./ic_home_funs.png" />
             <span>粉丝</span>
           </div>
-          <div class="service-item">
+          <div class="service-item" @click="toHomeGoodsPage()">
             <img src="./ic_home_hot.png" />
             <span>热销</span>
           </div>
-          <div class="service-item">
+          <div class="service-item" @click="toHomeGoodsPage()">
             <img src="./ic_home_new.png" />
             <span>新品</span>
           </div>
@@ -91,6 +91,12 @@
       },
       toLocationPage() {
         this.$router.push('/location');
+      },
+      toServicePage() {
+        this.$router.push('/subfield');
+      },
+      toHomeGoodsPage() {
+        this.$router.push('/home_goods');
       }
     },
     components: {

@@ -1,3 +1,9 @@
 export const SET_SKU_STATUS = 'SET_SKU_STATUS';
 
 export const SET_CHOSEN_CONTACT_ID = 'SET_CHOSEN_CONTACT_ID';
+
+export const SET_SELECT_STORE = 'SET_SELECT_STORE';
+
+export const SET_LOGIN_MODAL = 'SET_LOGIN_MODAL';
+
+export const SET_USER_INFO = 'SET_USER_INFO';
