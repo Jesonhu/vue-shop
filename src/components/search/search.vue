@@ -8,21 +8,26 @@
         <div class="search-input">
           <input class="input" type="text" placeholder="请输入搜索内容" v-model="searchWord">
           <img class="search-img" src="./title_bar_search.png" alt="搜搜"/>
-          <div class="close">x</div>
+          <div class="close" v-show="searchWord" @click="clearKeyword">x</div>
         </div>
-        <div class="search">搜索</div>
+        <div class="search" @click="_search">搜索</div>
       </div>
 
-      <scroll class="search-container" v-show="false">
+      <scroll class="search-container" v-show="!goodsList">
         <div>
-          <div class="search-content">
+          <div class="search-content" v-show="historyKeys">
             <div class="search-header">
               <img class="header-img" src="./goodSearch_temp_hitstory@2x.png" alt="历史">
               <div class="header-text">搜索历史</div>
-              <img class="delete" src="./goodSearch_temp_delete@2x.png" alt="删除">
+              <img class="delete" src="./goodSearch_temp_delete@2x.png" alt="删除" @click="clearHistort">
             </div>
             <div class="content-wrapper">
-              <div class="content">history</div>
+              <div class="content"
+                   v-for="(history, index) in historyKeys"
+                   :key="index"
+                   @click="_search(history)">
+                {{ history }}
+              </div>
             </div>
           </div>
 
@@ -32,17 +37,23 @@
               <div class="header-text">热门搜索</div>
             </div>
             <div class="content-wrapper">
-              <div class="content">hot</div>
+              <div class="content" v-for="(hot, index) in hotKeys" :key="index" @click="_search(hot)">{{ hot }}</div>
             </div>
           </div>
         </div>
       </scroll>
 
       <scroll class="goods-list-wrapper"
-              ref="scroll">
+              ref="scroll"
+              v-show="goodsList && goodsList.length >= 1">
         <ul class="goods-list">
-          <goods v-for="n in 20" :key="n" :goods-type="'medium'"></goods>
+          <goods v-for="(goods, index) in goodsList"
+                 :key="index"
+                 :goods="goods"
+                 :goods-type="'medium'">
+          </goods>
           <!--<ten-height></ten-height>-->
+          <loaded-bottom v-if="goodsList"></loaded-bottom>
         </ul>
         <!--<div class="no-search-goods" v-show="searchGoods && searchGoods.length === 0 && searchWord">对不起,暂无该商品!</div>-->
       </scroll>
@@ -51,29 +62,87 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import { getHotKye, search } from 'api/search';
+  import { ERR_OK } from 'api/config';
+  import { saveSearch, getSearch, clearHistory } from 'common/js/cache';
+  import { Dialog } from 'vant';
   import Scroll from 'base/scroll/scroll';
   import Goods from 'base/goods/goods';
+  import LoadedBottom from 'base/loaded-bottom/loaded-bottom';
 
   export default {
     data() {
       return {
-        searchWord: null,
+        searchWord: '',
         historySearch: null,
-        searchGoods: null
+        hotKeys: [],
+        historyKeys: [],
+        goodsList: null
       };
     },
     created() {
-      this.searchGoods = null;
       this.searchWord = null;
+      this.goodsList = null;
+      this.historyKeys = getSearch();
+      this._getHotKye();
+    },
+    watch: {
+      '$route'(newRoute) {
+        if (newRoute.name === '搜索') {
+          this.goodsList = null;
+          this.searchWord = null;
+          this.historyKeys = getSearch();
+        }
+      }
     },
     methods: {
       back() {
         this.$router.back();
+      },
+      _getHotKye() {
+        getHotKye().then((res) => {
+          if (res.code === ERR_OK) {
+            this.hotKeys = res.datum;
+          }
+        });
+      },
+      _search(keyword) {
+        if (keyword) {
+          this.searchWord = keyword;
+        }
+        saveSearch(this.searchWord);
+        search(this.searchWord).then((res) => {
+          if (res.code === ERR_OK) {
+            res.data.forEach((item) => {
+              item.image = res.imageUrl + item.image;
+            });
+
+            this.goodsList = res.data;
+          }
+        });
+      },
+      clearKeyword() {
+        this.searchWord = '';
+        this.goodsList = null;
+      },
+      clearHistort() {
+        Dialog.confirm({
+          title: '提示',
+          message: '是否清空历史记录?'
+        }).then(() => {
+          // on confirm
+          this.historyKeys = [];
+          clearHistory();
+        }).catch(() => {
+          // on cancel
+        });
       }
     },
     components: {
+      [Dialog.name]: Dialog,
       Scroll,
-      Goods
+      Goods,
+      LoadedBottom
     }
   };
 </script>
@@ -187,7 +256,6 @@
       overflow: hidden
       background: $color-background
       .goods-list
-        text-align: center
         .goods-content
           display: inline-block
           width: 42%

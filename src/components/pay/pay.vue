@@ -1,13 +1,13 @@
 <template>
   <transition name="slide2">
-    <div class="pay-wrapper">
-      <navbar></navbar>
+    <div class="pay-wrapper" v-if="payInfo">
+      <navbar title="支付" path="/order"></navbar>
       <div class="title">合计</div>
       <div class="price-detail">
         <div class="detail-right">
           <div class="right-item">
             <div class="right-text">总价</div>
-            <div class="price">￥40.00</div>
+            <div class="price" v-if="payInfo">￥{{ parseFloat(payInfo.amount).toFixed(2) }}</div>
           </div>
           <div class="right-item">
             <div class="right-text">已付</div>
@@ -15,12 +15,13 @@
           </div>
           <div class="right-item">
             <div class="right-text">优惠</div>
-            <div class="price decrease">-￥10.00</div>
+            <div class="price decrease">-￥{{parseFloat(payInfo.couponDiscount).toFixed(2) }}
+            </div>
           </div>
         </div>
         <div class="detail-left">
           <div class="left-text">还需支付</div>
-          <div class="left-price">￥30.00</div>
+          <div class="left-price">￥{{ (parseFloat(payInfo.amount) - payInfo.couponDiscount).toFixed(2) }}</div>
         </div>
       </div>
 
@@ -38,13 +39,48 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import { mapGetters } from 'vuex';
+  import { getPayInfo } from 'api/pay';
+  import { getToken } from 'common/js/cache';
+  import { ERR_OK } from 'api/config';
   import Navbar from 'base/navbar/navbar';
   import FixedBottomBtn from 'base/fixed-bottom-btn/fixed-bottom-btn';
 
   export default {
+    data() {
+      return {
+        payInfo: null
+      };
+    },
+    created() {
+      if (!this.createOrder) {
+        this.$router.back();
+      } else {
+        this._getPayInfo();
+      }
+    },
+    computed: {
+      ...mapGetters([
+        'createOrder'
+      ])
+    },
+    watch: {
+      '$route'(newRoute) {
+        if (newRoute.name === '支付') {
+          this._getPayInfo();
+        }
+      }
+    },
     methods: {
       _payment() {
         this.$router.push('/pay_result');
+      },
+      _getPayInfo() {
+        getPayInfo(getToken(), this.$route.params.sn).then((res) => {
+          if (res.code === ERR_OK) {
+            this.payInfo = res.datum;
+          }
+        });
       }
     },
     components: {
@@ -65,7 +101,7 @@
     left: 0
     right: 0
     bottom: 0
-    z-index: 300
+    z-index: $zIndex-xxl
     background: $color-background
     .sn-items
       padding: 0 10px

@@ -1,33 +1,33 @@
 <template>
   <div>
     <div class="user-container">
-      <img class="user-poster" src="https://img.yzcdn.cn/public_files/2017/10/23/8690bb321356070e0b8c4404d087f8fd.png">
+      <img class="user-poster" src="./member_bg.jpg">
       <div class="avatar">
         <div v-if="!userInfo">
-          <img src="./user_head.png">
+          <!--<img src="./user_head.png">-->
           <div class="login-btn" @click="showLoginModal">登陆</div>
         </div>
         <div v-if="userInfo" class="avatar-wrapper">
-          <img v-lazy="userInfo.avatar"/>
+          <!--<img v-lazy="userInfo.avatar"/>-->
           <div class="username"> {{ userInfo.username }}</div>
         </div>
       </div>
     </div>
     <van-row class="user-links">
-      <van-col span="6" class="links-item" @click.native="toOrderPage">
-        <van-icon name="pending-payment"/>
+      <van-col span="6" class="links-item" @click.native="toOrderPage(1)">
+        <van-icon name="pending-payment" :info="total.pendingPayment"/>
         待付款
       </van-col>
-      <van-col span="6" class="links-item" @click.native="toOrderPage">
-        <van-icon name="pending-orders"/>
+      <van-col span="6" class="links-item" @click.native="toOrderPage(2)">
+        <van-icon name="pending-orders" :info="total.pendingReview"/>
         待接单
       </van-col>
-      <van-col span="6" class="links-item" @click.native="toOrderPage">
-        <van-icon name="pending-deliver" info="5"/>
+      <van-col span="6" class="links-item" @click.native="toOrderPage(3)">
+        <van-icon name="pending-deliver" :info="total.pendingShipment"/>
         待发货
       </van-col>
-      <van-col span="6" class="links-item" @click.native="toOrderPage">
-        <van-icon name="logistics"/>
+      <van-col span="6" class="links-item" @click.native="toOrderPage(4)">
+        <van-icon name="logistics" :info="total.shipped"/>
         待收货
       </van-col>
     </van-row>
@@ -36,19 +36,14 @@
       <van-cell class=".van-cell__right-icon group-item"
                 icon="records" title="全部订单"
                 is-link
-                @click.native="toOrderPage"/>
+                @click.native="toOrderPage(0)"/>
     </van-cell-group>
 
     <van-cell-group class="user-group">
-      <router-link to="/address">
-        <van-cell class="group-item" icon="exchange" title="我的地址" is-link/>
-      </router-link>
-      <router-link to="/coupon">
-        <van-cell class="group-item" icon="gold-coin" title="我的优惠券" is-link/>
-      </router-link>
-      <router-link to="/setting">
-        <van-cell class="group-item" icon="gift" title="设置" is-link/>
-      </router-link>
+      <van-cell class="group-item" icon="exchange" title="我的地址" is-link @click.native="toPage('/address/member')"/>
+      <van-cell class="group-item" icon="gold-coin" title="我的优惠券" is-link @click.native="toPage('/coupon/all')"/>
+      <van-cell class="group-item" icon="gift" title="收藏商品" is-link @click.native="toPage('/favorite')"/>
+      <van-cell class="group-item" icon="edit" title="设置" is-link @click.native="toPage('/setting')"/>
     </van-cell-group>
   </div>
 </template>
@@ -56,27 +51,112 @@
 <script type="text/ecmascript-6">
   import { mapMutations, mapGetters } from 'vuex';
   import { Row, Col, Icon, Cell, CellGroup } from 'vant';
-  import { getUserInfo } from 'common/js/cache';
+  import { getUserInfo, getToken } from 'common/js/cache';
+  import { getOrderList } from 'api/order';
+  import { ERR_OK } from 'api/config';
+
+  const orderTypes = {
+    pendingPayment: 'pendingPayment',
+    pendingReview: 'pendingReview',
+    pendingShipment: 'pendingShipment',
+    shipped: 'shipped'
+  };
 
   export default {
+    data() {
+      return {
+        total: {
+          pendingPayment: null,
+          pendingReview: null,
+          pendingShipment: null,
+          shipped: null
+        }
+      };
+    },
     created() {
       this.setUserInfo(getUserInfo());
+      if (getToken()) {
+        this._getOrderList();
+      }
     },
     computed: {
       ...mapGetters([
-        'userInfo'
+        'userInfo',
+        'loginModal'
       ])
     },
+    watch: {
+      '$route'(newRoute) {
+        if (newRoute.name === '会员') {
+          if (getToken()) {
+            this._getOrderList();
+          } else {
+            this.pendingPayment = null;
+            this.pendingReview = null;
+            this.pendingShipment = null;
+            this.shipped = null;
+          }
+        }
+      },
+      loginModal(newStatus) {
+        if (!newStatus) {
+          this._getOrderList();
+        }
+      }
+    },
     methods: {
-      toOrderPage() {
-        this.$router.push('/order');
+      toOrderPage(orderActive) {
+        if (getToken()) {
+          this.setOrderActive(orderActive);
+          this.$router.push('/order');
+        } else {
+          this.showLoginModal();
+        }
       },
       showLoginModal() {
         this.setLoginModal(true);
       },
+      toPage(url) {
+        if (!getToken()) {
+          this.showLoginModal();
+          return;
+        }
+        this.$router.push(url);
+      },
+      _getOrderList() {
+        if (!getToken()) {
+          return;
+        }
+
+        const values = Object.values(orderTypes);
+        values.forEach((value) => {
+          getOrderList(getToken(), value).then((res) => {
+            if (res.code === ERR_OK) {
+              if (res.datum.totalRow >= 1) {
+                if (value === orderTypes.pendingPayment) {
+                  this.total.pendingPayment = res.datum.totalRow + '';
+                  return;
+                }
+                if (value === orderTypes.pendingReview) {
+                  this.total.pendingReview = res.datum.totalRow + '';
+                  return;
+                }
+                if (value === orderTypes.pendingShipment) {
+                  this.total.pendingShipment = res.datum.totalRow + '';
+                  return;
+                }
+                if (value === orderTypes.shipped) {
+                  this.total.shipped = res.datum.totalRow + '';
+                }
+              }
+            }
+          });
+        });
+      },
       ...mapMutations({
         setLoginModal: 'SET_LOGIN_MODAL',
-        setUserInfo: 'SET_USER_INFO'
+        setUserInfo: 'SET_USER_INFO',
+        setOrderActive: 'SET_ORDER_ACTIVE'
       })
     },
     components: {
@@ -100,9 +180,9 @@
       display: block
     .avatar
       position: absolute
-      top: 50%
+      bottom: .2rem
       left: 50%
-      transform: translate(-50%, -50%)
+      transform: translateX(-50%)
       img
         width: 1.6rem
         height: 1.6rem
@@ -118,12 +198,6 @@
         background: $color-text
       .avatar-wrapper
         font-size: $font-size-medium
-  .user-group
-    margin-bottom: .3rem
-    .group-item
-      padding: .2rem .3rem
-      line-height: .48rem
-      font-size: $font-size-medium
 
   .user-links
     padding: .2rem 0
@@ -136,15 +210,8 @@
       font-size: $font-size-large-d
 </style>
 
-<style lang="stylus" rel="stylesheet/stylus">
-  @import '~common/stylus/variable'
-
-  .user-group
-    .group-item
-      .van-cell__title
-        > .van-icon
-          font-size: $font-size-medium-x
-      .van-icon
-        &.van-cell__right-icon
-          font-size: $font-size-small
+<style lang="stylus" ref="stylesheet/stylus">
+  .van-cell__text
+    position: relative
+    top: 2px
 </style>

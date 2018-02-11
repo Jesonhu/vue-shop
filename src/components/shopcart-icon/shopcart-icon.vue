@@ -2,17 +2,19 @@
   <div class="shopcart-icon-wrapper">
     <router-link to="/shopcart" tag="div" class="shopcart-icon">
       <img width="100%" height="100%" src="./ic_shop_cart.png">
-      <div class="badge">3</div>
+      <div class="badge" v-if="shopcartCount && shopcartCount >= 1">{{ shopcartCount }}</div>
     </router-link>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import { Badge } from 'vant';
+  import { mapGetters } from 'vuex';
 
   export default {
-    components: {
-      [Badge.name]: Badge
+    computed: {
+      ...mapGetters([
+        'shopcartCount'
+      ])
     }
   };
 </script>
@@ -24,6 +26,7 @@
     position: fixed
     right: .2rem
     bottom: 1.4rem
+    z-index: $zIndex-s
     .shopcart-icon
       position: relative
       width: 1rem
@@ -32,8 +35,8 @@
         position: absolute
         top: 0
         right: 0
-        width: .35rem
-        height: .35rem
+        min-width: .35rem
+        min-height: .35rem
         line-height: .35rem
         text-align: center
         border-radius: 50%

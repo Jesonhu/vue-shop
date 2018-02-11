@@ -11,6 +11,7 @@ const ShopcartOrder = () => import('components/shopcart-order/shopcart-order');
 const Detail = () => import('components/detail/detail');
 const Address = () => import('components/address/address');
 const AddressdEdit = () => import('components/address-edit/address-edit');
+const Area = () => import('components/area/area');
 const Coupon = () => import('components/coupon/coupon');
 const Pay = () => import('components/pay/pay');
 const PayResult = () => import('components/pay-result/pay-result');
@@ -22,6 +23,8 @@ const Login = () => import('components/login/login');
 const LoginPassword = () => import('components/login-password/login-password');
 const Register = () => import('components/register/register');
 const Setting = () => import('components/setting/setting');
+const RevisePassword = () => import('components/revise-password/revise-password');
+const Favorite = () => import('components/favorite/favorite');
 
 Vue.use(Router);
 
@@ -30,24 +33,27 @@ export default new Router({
     { path: '/', redirect: '/home' },
     { path: '/', component: Tabbar },
     { path: '/home', component: Home, name: '首页' },
-    { path: '/home_goods', component: HomeGoods, name: '首页商品' },
+    { path: '/home_goods/:type', component: HomeGoods, name: '首页商品' },
     { path: '/category', component: Category, name: '分类' },
     { path: '/member', component: Member, name: '会员' },
     { path: '/shopcart', component: Shopcart, name: '购物车' },
     { path: '/shopcart_order', component: ShopcartOrder, name: '购物车订单' },
-    { path: '/pay', component: Pay, name: '支付' },
+    { path: '/pay/:sn', component: Pay, name: '支付' },
     { path: '/pay_result', component: PayResult, name: '支付结果' },
-    { path: '/detail', component: Detail, name: '商品详情' },
-    { path: '/address', component: Address, name: '地址列表' },
-    { path: '/address_edit', component: AddressdEdit, name: '编辑地址' },
-    { path: '/coupon', component: Coupon, name: '优惠券' },
+    { path: '/detail/:id', component: Detail, name: '商品详情' },
+    { path: '/address/:type', component: Address, name: '地址列表' },
+    { path: '/address_edit/:type', component: AddressdEdit, name: '编辑地址' },
+    { path: '/area', component: Area, name: '区域' },
+    { path: '/coupon/:type', component: Coupon, name: '优惠券' },
     { path: '/order', component: Order, name: '订单列表' },
-    { path: '/order_detail', component: OrderDetail, name: '订单详情' },
+    { path: '/order_detail/:sn', component: OrderDetail, name: '订单详情' },
     { path: '/search', component: Search, name: '搜索' },
     { path: '/location', component: Location, name: '店铺选择' },
     { path: '/login', component: Login, name: '登陆' },
     { path: '/login_password', component: LoginPassword, name: '密码登陆' },
     { path: '/register', component: Register, name: '注册' },
-    { path: '/setting', component: Setting, name: '设置' }
+    { path: '/setting', component: Setting, name: '设置' },
+    { path: '/revise_password', component: RevisePassword, name: '修改密码' },
+    { path: '/favorite', component: Favorite, name: '收藏' }
   ]
 });

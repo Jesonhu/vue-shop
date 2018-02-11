@@ -1,12 +1,14 @@
 <template>
-  <div>
+  <div class="contact">
     <!-- 联系人卡片 -->
     <van-contact-card
       :type="cardType"
       :name="currentContact.name"
       :tel="currentContact.tel"
       @click="selectContact"
-    />
+    >
+    </van-contact-card>
+    <div class="address" v-show="currentContact.address">联系地址: {{ currentContact.address }}</div>
   </div>
 </template>
 
@@ -35,20 +37,31 @@
     },
     computed: {
       cardType() {
-        return this.chosenContactId !== null ? 'edit' : 'add';
+        return this.selectAddress !== null ? 'edit' : 'add';
       },
 
       currentContact() {
-        const id = this.chosenContactId;
-        return id !== null ? this.list.filter(item => item.id === id)[0] : {};
+        // const id = this.chosenContactId;
+        // return id !== null ? this.list.filter(item => item.id === id)[0] : {};
+        if (this.selectAddress) {
+          return {
+            id: this.selectAddress.id,
+            name: this.selectAddress.consignee,
+            tel: this.selectAddress.phone,
+            address: this.selectAddress.area_name + this.selectAddress.address
+          };
+        } else {
+          return {};
+        }
       },
       ...mapGetters([
-        'chosenContactId'
+        'chosenContactId',
+        'selectAddress'
       ])
     },
     methods: {
       selectContact() {
-        this.$router.push('/address');
+        this.$router.push('/address/order');
       }
     },
     components: {
@@ -58,8 +71,33 @@
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-  .van-contact-card__content
-    padding: .1rem .2rem
-    .van-contact-card__text
-      vertical-align: top
+  @import '~common/stylus/variable'
+
+  .contact
+    position: relative
+    .van-contact-card__content
+      padding: .1rem .2rem .3rem .2rem
+      .van-contact-card__text
+        vertical-align: top
+    .address
+      position: absolute
+      bottom: .2rem
+      left: .75rem
+      background: $color-text
+      font-size: $font-size-medium
+
+  .van-contact-card__icon
+    margin-right: .2rem
+
+  .van-contact-card--edit
+    .van-contact-card__icon
+      font-size: $font-size-large
+
+  .van-contact-card__text
+    line-height: .4rem
+    font-size: $font-size-medium
+
+  .van-contact-card__arrow
+    right: .2rem
+    font-size: $font-size-small
 </style>

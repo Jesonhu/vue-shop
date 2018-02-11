@@ -45,7 +45,7 @@
         });
       },
       ...mapMutations({
-        setUserInfo: 'SET_USERINFO'
+        setUserInfo: 'SET_USER_INFO'
       })
     },
     components: {

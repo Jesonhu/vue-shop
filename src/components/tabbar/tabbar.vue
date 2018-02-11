@@ -55,12 +55,7 @@
   @import '~common/stylus/variable'
 
   .van-tabbar
-    height: 1rem
     .van-tabbar-item
-      font-size: $font-size-small
       &.van-tabbar-item--active
         color: $color-theme
-      .van-tabbar-item__icon
-        font-size: $font-size-large
-        margin-bottom: .1rem
 </style>

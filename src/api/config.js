@@ -12,12 +12,13 @@ export const TOKEN_FAIL = 422;
 export const SERVER_ERROR = 500;
 
 export function configHttp() {
-  axios.defaults.timeout = 10000;
+  axios.defaults.timeout = 20000;
   axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
   let host = window.location.host;
   switch (host) {
-    case 'test.omengo.com':
-      axios.defaults.baseURL = 'http://test.omengo.com';
+    case 'b2c.jfinalshop.com': // 新版
+      // axios.defaults.baseURL = 'http://test.omengo.com';
+      axios.defaults.baseURL = 'http://b2c.jfinalshop.com'; // 新版
       break;
     case 'test.jfinalshop.com':
       axios.defaults.baseURL = 'http://test.jfinalshop.com';
@@ -38,9 +39,7 @@ export function configHttp() {
       // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
       break;
     case '192.168.9.76:8080':
-      // axios.defaults.baseURL = 'http://192.168.9.43:8089';
-      axios.defaults.baseURL = 'http://192.168.9.33:8080'; // 元哥
-      // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
+      axios.defaults.baseURL = 'http://b2c.jfinalshop.com'; // 新版
       break;
     case '192.168.9.76:8081':
       axios.defaults.baseURL = 'http://192.168.9.43:8089';
@@ -61,7 +60,6 @@ export function configHttp() {
     Toast('参数错误!');
     return Promise.reject(error);
   });
-
   axios.interceptors.response.use(function (response) {
     Toast.clear();
     /**
@@ -73,14 +71,13 @@ export function configHttp() {
 
     if (response.data.code === TOKEN_FAIL) {
       Toast(response.data.message);
-      Router.push('/personal');
-      window.location.reload();
+      Router.push('/member');
+      window.localStorage.clear();
     }
 
     if (response.data.code === SERVER_ERROR) {
       Toast(response.data.message);
     }
-
     return response;
   }, function (error) {
     // Do something with response error

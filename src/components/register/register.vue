@@ -16,9 +16,7 @@
           <img class="img" src="./login_code_21x21.png"/>
           <input class="input" type="password" placeholder="请输入密码" v-model="password">
         </div>
-        <div class="btn-wrapper">
-          <l-btn :active="registerBtn" :text="'注册'" @click.native="_registerApi"></l-btn>
-        </div>
+        <fixed-bottom-btn :active="registerBtn" :text="'注册'" @click.native="_registerApi"></fixed-bottom-btn>
       </div>
     </div>
   </transition>
@@ -26,7 +24,7 @@
 
 <script type="text/ecmascript-6">
   import Navbar from 'base/navbar/navbar';
-  import LBtn from 'base/btns/l-btn';
+  import FixedBottomBtn from 'base/fixed-bottom-btn/fixed-bottom-btn';
   import { sendSms } from 'api/sendSms';
   import { register } from 'api/register';
   import { ERR_OK } from 'api/config';
@@ -58,7 +56,7 @@
           return;
         }
 
-        sendSms(this.username, smsType.memberRegister).then((res) => {
+        sendSms(this.username, smsType.MEMBER_REGISTER).then((res) => {
           if (res.code === ERR_OK) {
             this.countDown();
             Toast.success(res.message);
@@ -72,15 +70,15 @@
 
         register(this.username, this.sms, this.password).then((res) => {
           if (res.code === ERR_OK) {
-            this.$router.push('/member');
             Toast.success(res.message);
+            this.$router.push('/member');
           }
         });
       }
     },
     components: {
       Navbar,
-      LBtn
+      FixedBottomBtn
     }
   };
 </script>

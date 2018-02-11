@@ -1,53 +1,68 @@
 <template>
   <transition name="slide">
-    <div class="goods-container">
-      <scroll class="goods">
+    <div class="goods-container" v-if="goodsDetail">
+      <scroll class="goods" ref="scroll">
         <div>
           <van-swipe class="goods-swipe" :autoplay="3000">
-            <van-swipe-item v-for="thumb in goods.thumb" :key="thumb">
-              <img :src="thumb">
+            <van-swipe-item>
+              <img v-lazy="goodsDetail.goods.image" @click="showImagePreview">
             </van-swipe-item>
           </van-swipe>
 
           <van-cell-group>
             <van-cell class="goods-title-price">
-              <div class="goods-title">{{ goods.title }}</div>
-              <div class="goods-price">{{ formatPrice(goods.price) }}</div>
+              <div class="goods-title">
+                {{ goodsDetail.goods.brand + goodsDetail.goods.name }}
+                ({{ goodsDetail.goods.unit }})
+              </div>
+              <div class="goods-price">￥{{ goodsDetail.goods.price.toFixed(2) }}</div>
             </van-cell>
             <van-cell class="goods-express">
               <van-col span="10">运费：{{ goods.express }}</van-col>
-              <van-col span="14">剩余：{{ goods.remain }}</van-col>
+              <van-col span="14">剩余：{{ goodsDetail.goods.availableStock }}</van-col>
             </van-cell>
           </van-cell-group>
 
-          <van-cell-group class="goods-cell-group">
-            <van-cell value="进入店铺" icon="shop" is-link>
-              <template slot="title">
-                <span class="van-cell-text">有赞的店</span>
-                <van-tag type="danger">官方</van-tag>
-              </template>
-            </van-cell>
-            <van-cell title="线下门店" icon="location" is-link/>
-          </van-cell-group>
+          <!--<van-cell-group class="goods-cell-group">-->
+          <!--<van-cell value="进入店铺" icon="shop" is-link>-->
+          <!--<template slot="title">-->
+          <!--<span class="van-cell-text">有赞的店</span>-->
+          <!--<van-tag type="danger">官方</van-tag>-->
+          <!--</template>-->
+          <!--</van-cell>-->
+          <!--<van-cell title="线下门店" icon="location" is-link/>-->
+          <!--</van-cell-group>-->
 
           <van-cell-group class="goods-cell-group">
             <van-cell title="查看商品详情" is-link/>
           </van-cell-group>
 
+          <van-cell-group class="goods-cell-group">
+            <van-cell title="推荐商品"/>
+          </van-cell-group>
+
+          <div class="recommend-list">
+            <goods v-for="(goods, index) in goodsDetail.recommends"
+                   :key="index"
+                   :goods="goods"
+                   class="goods-item">
+            </goods>
+          </div>
+
         </div>
       </scroll>
 
       <van-goods-action class="goods-action">
-        <van-goods-action-mini-btn icon="chat">
-          客服
+        <van-goods-action-mini-btn icon="like-o" @click.native="_addFavorite(goodsDetail.goods.id)">
+          收藏
         </van-goods-action-mini-btn>
-        <van-goods-action-mini-btn icon="cart" :info="cartQuantity">
+        <van-goods-action-mini-btn icon="cart" :info="count" @click.native="toShopcartPage">
           购物车
         </van-goods-action-mini-btn>
-        <van-goods-action-big-btn @click="showSku">
+        <van-goods-action-big-btn @click="_showSku(goodsDetail.goods)">
           加入购物车
         </van-goods-action-big-btn>
-        <van-goods-action-big-btn primary>
+        <van-goods-action-big-btn primary @click="_buyClick">
           立即购买
         </van-goods-action-big-btn>
       </van-goods-action>
@@ -74,43 +89,106 @@
     GoodsAction,
     GoodsActionBigBtn,
     GoodsActionMiniBtn,
+    ImagePreview,
     Toast
   } from 'vant';
-  import { mapMutations } from 'vuex';
   import Scroll from 'base/scroll/scroll';
   import Sku from 'base/sku/sku';
+  import Goods from 'base/goods/goods';
+  import { mapMutations, mapActions, mapGetters } from 'vuex';
+  import { getGoodsDetail } from 'api/goods';
+  import { ERR_OK } from 'api/config';
+  import { skuMixin } from 'common/js/mixin';
+  import { addFavorite } from 'api/favorite';
+  import { getToken } from 'common/js/cache';
 
   export default {
+    mixins: [skuMixin],
     data() {
       return {
         showBase: false,
-        cartQuantity: '4',
-        goods: {
-          title: '美国伽力果（约680g/3个）',
-          price: 2680,
-          express: '免运费',
-          remain: 19,
-          thumb: [
-            'https://img.yzcdn.cn/public_files/2017/10/24/e5a5a02309a41f9f5def56684808d9ae.jpeg',
-            'https://img.yzcdn.cn/public_files/2017/10/24/1791ba14088f9c2be8c610d0a6cc0f93.jpeg'
-          ],
-          picture: 'https://img.yzcdn.cn/public_files/2017/10/24/e5a5a02309a41f9f5def56684808d9ae.jpeg'
-        }
+        goods: {},
+        goodsDetail: null
       };
     },
-    methods: {
-      formatPrice() {
-        return '¥' + (this.goods.price / 100).toFixed(2);
+    created() {
+      this._getGoodsDetail(this.$route.params.id);
+      Toast.allowMultiple();
+    },
+    computed: {
+      count() {
+        if (this.shopcartCount === 0) {
+          return null;
+        }
+        return this.shopcartCount + '';
       },
+      ...mapGetters([
+        'shopcartCount'
+      ])
+    },
+    watch: {
+      '$route'(newRoute) {
+        if (newRoute.name === '商品详情') {
+          this._getGoodsDetail(this.$route.params.id);
+        }
+      },
+      goodsDetail() {
+        if (!this.goodsDetail) {
+          Toast.loading();
+        } else {
+          Toast.clear();
+        }
+      }
+    },
+    methods: {
       back() {
         this.$router.back();
       },
-      showSku() {
-        this.setSkuStatus(true);
+      _getGoodsDetail(goodsId) {
+        getGoodsDetail(goodsId).then((res) => {
+          if (res.code === ERR_OK) {
+            res.datum.goods.image = res.imageUrl + res.datum.goods.image;
+            res.datum.recommends.forEach((item) => {
+              item.image = res.imageUrl + item.image;
+            });
+            this.goodsDetail = res.datum;
+
+            setTimeout(() => {
+              this.$refs.scroll.scrollTo(0, 0);
+            }, 20);
+          }
+        });
+      },
+      toShopcartPage() {
+        this.$router.push('/shopcart');
+      },
+      _buyClick() {
+        const goods = {
+          goodsId: this.goodsDetail.goods.id,
+          selectedNum: 1
+        };
+        this.buyClick(goods);
+      },
+      _addFavorite(goodsId) {
+        addFavorite(getToken(), goodsId).then((res) => {
+          if (res.code === ERR_OK) {
+            Toast.success('收藏成功!');
+          }
+        });
+      },
+      showImagePreview() {
+        this.instance = ImagePreview([
+          this.goodsDetail.goods.image,
+          this.goodsDetail.goods.image
+        ]);
       },
       ...mapMutations({
         setSkuStatus: 'SET_SKU_STATUS'
-      })
+      }),
+      ...mapActions([
+        'showSku',
+        'buyClick'
+      ])
     },
     components: {
       [Tag.name]: Tag,
@@ -125,7 +203,8 @@
       [GoodsActionMiniBtn.name]: GoodsActionMiniBtn,
       [Toast.name]: Toast,
       Scroll,
-      Sku
+      Sku,
+      Goods
     }
   };
 </script>
@@ -156,24 +235,18 @@
           width: 100vw
           height: 100vw
           display: block
+      .goods-cell-group
+        margin: 10px 0
       .goods-title-price
         padding: .2rem .3rem
-        line-height: .48rem
         .goods-title
           font-size: $font-size-medium
         .goods-price
           font-size: $font-size-small
           color: #f44
-      .goods-express
-        color: #999
-        font-size: $font-size-small
-        padding: .1rem .3rem
-      .goods-cell-group
-        margin: .3rem 0
-        .van-cell__value
-          color: #999
-        .goods-action
-          z-index: $zIndex-s
+      .recommend-list
+        .goods-item
+          width: 33.2vw
     .goods-action
       position: fixed
       .van-goods-action__mini-btn
@@ -193,36 +266,4 @@
       .back-img
         width: .7rem
         height: .7rem
-</style>
-
-<style lang="stylus" rel="stylesheet/stylus">
-  @import '~common/stylus/variable.styl'
-  .goods-cell-group
-    .van-cell
-      .van-cell__title
-        font-size: $font-size-small
-        .van-icon-shop, .van-icon-location
-          font-size: $font-size-medium-x
-        .van-tag--danger
-          line-height: .28rem
-          padding: .02rem .1rem
-          border-radius: .04rem
-          font-size: $font-size-small
-          /*background: #c9c9c9*/
-          color: $color-text
-        .van-hairline--surround
-          &::after
-            border-width: 0
-      .van-cell__value--link
-        padding-right: .4rem
-        font-size: $font-size-small
-      .van-icon-arrow
-        right: .3rem
-        font-size: $font-size-small-s
-
-  .goods-action
-    .van-goods-action__mini-btn
-      .van-goods-action__mini-btn-icon
-        font-size: .4rem
-        margin-bottom: .1rem
 </style>

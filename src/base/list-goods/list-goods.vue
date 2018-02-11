@@ -2,14 +2,14 @@
   <div class="goods-wrapper">
     <div class="goods-img-wrapper">
       <img class="goods-img"
-           v-lazy="'http://www.omengo.com//upload/image/201711/52e53672-9c78-49ac-b57d-d8c631f7ebda_thumbnail.jpg'"
+           v-lazy="goods.thumbnail"
            @click="toGoodsDetail"/>
     </div>
     <div class="goods-detail">
-      <div class="brand-name">银鹭<span class="name">银鹭花生牛奶饮料盒</span>
+      <div class="brand-name">{{ goods.brand }}<span class="name">{{ goods.name }}</span>
       </div>
-      <div class="unit">250ml/盒</div>
-      <div class="price">￥2.50 <span class="quantity">x2</span></div>
+      <div class="unit">{{ goods.unit }}</div>
+      <div class="price">￥{{ goods.price.toFixed(2) }} <span class="quantity">x{{ goods.quantity }}</span></div>
     </div>
     <promotions class="promotions" :promotions="promotions"></promotions>
   </div>
@@ -24,6 +24,10 @@
       promotions: {
         type: String,
         defalut: null
+      },
+      goods: {
+        type: Object,
+        defalut: {}
       }
     },
     data() {
@@ -69,6 +73,7 @@
         height: 1.2rem
     .goods-detail
       flex: 1
+      margin-left: .2rem
       line-height: .4rem
       .brand-name
         width: 80vw

@@ -1,39 +1,33 @@
 import axios from 'axios';
 
-export function findRoots(storeId) {
-  const url = '/api/productCategory/findRoots';
+export function findRoots() {
+  const url = '/api/productCategory.jhtml';
+
+  return axios.get(url).then((res) => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function findChildren(firstCategoryId) {
+  const url = '/api/productCategory/children.jhtml';
 
   return axios.get(url, {
     params: {
-      storeId: storeId
+      id: firstCategoryId
     }
   }).then((res) => {
     return Promise.resolve(res.data);
   });
 }
 
-export function findChildren(productCategoryId, storeId) {
-  const url = '/api/productCategory/findChildren';
+export function findProducts(categoryId, pageNumber, orderType) {
+  const url = '/api/productCategory/goods.jhtml';
 
   return axios.get(url, {
     params: {
-      storeProductCategoryId: productCategoryId + '',
-      storeId: storeId
-    }
-  }).then((res) => {
-    return Promise.resolve(res.data);
-  });
-}
-
-export function findProducts(productCategoryId, pageNumber, orderType, storeId) {
-  const url = '/api/productCategory/findProducts';
-
-  return axios.get(url, {
-    params: {
-      storeProductCategoryId: productCategoryId + '',
+      id: categoryId,
       pageNumber: pageNumber,
-      orderType: orderType,
-      storeId: storeId
+      orderType: orderType
     }
   }).then((res) => {
     return Promise.resolve(res.data);

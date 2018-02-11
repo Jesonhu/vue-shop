@@ -1,9 +1,9 @@
-import axios from 'axios';
+import axois from 'axios';
 
 export function getShopcartCount(cartKey) {
-  const url = '/api/cart/sku_quantity';
+  const url = '/api/cart/count.jhtml';
 
-  return axios.get(url, {
+  return axois.get(url, {
     params: {
       cartKey: cartKey
     }
@@ -12,11 +12,11 @@ export function getShopcartCount(cartKey) {
   });
 }
 
-export function addShopcart(skuId, quantity, cartKey) {
-  const url = '/api/cart/add';
+export function addShopcart(productId, quantity, cartKey) {
+  const url = '/api/cart/add.jhtml';
 
-  return axios.post(url, {
-    skuId: skuId + '',
+  return axois.post(url, {
+    productId: productId,
     quantity: quantity,
     cartKey: cartKey
   }).then((res) => {
@@ -25,9 +25,9 @@ export function addShopcart(skuId, quantity, cartKey) {
 }
 
 export function getShopcartList(cartKey) {
-  const url = '/api/cart/info';
+  const url = '/api/cart/list.jhtml';
 
-  return axios.get(url, {
+  return axois.get(url, {
     params: {
       cartKey: cartKey
     }
@@ -36,23 +36,25 @@ export function getShopcartList(cartKey) {
   });
 }
 
-export function modifyQuantity(skuId, quantity, cartKey) {
-  const url = '/api/cart/modify';
+export function deleteShopcartItem(cartKey, ids) {
+  const url = '/api/cart/delete.jhtml';
 
-  return axios.post(url, {
-    skuId: skuId + '',
-    quantity: quantity,
-    cartKey: cartKey
+  return axois.get(url, {
+    params: {
+      cartKey: cartKey,
+      ids: ids
+    }
   }).then((res) => {
     return Promise.resolve(res.data);
   });
 }
 
-export function remove(skuIds, cartKey) {
-  const url = '/api/cart/remove';
+export function modifyShopcart(productId, quantity, cartKey) {
+  const url = '/api/cart/modify.jhtml';
 
-  return axios.post(url, {
-    skuIds: skuIds + '',
+  return axois.post(url, {
+    productId: productId,
+    quantity: quantity,
     cartKey: cartKey
   }).then((res) => {
     return Promise.resolve(res.data);

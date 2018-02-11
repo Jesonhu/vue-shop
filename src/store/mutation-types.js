@@ -1,4 +1,10 @@
+export const SET_SKU = 'SET_SKU';
+
 export const SET_SKU_STATUS = 'SET_SKU_STATUS';
+
+export const SET_SKU_GOODS = 'SET_SKU_GOODS';
+
+export const SET_SKU_GOODSID = 'SET_SKU_GOODSID';
 
 export const SET_CHOSEN_CONTACT_ID = 'SET_CHOSEN_CONTACT_ID';
 
@@ -7,3 +13,17 @@ export const SET_SELECT_STORE = 'SET_SELECT_STORE';
 export const SET_LOGIN_MODAL = 'SET_LOGIN_MODAL';
 
 export const SET_USER_INFO = 'SET_USER_INFO';
+
+export const SET_SHOPCART_COUNT = 'SET_SHOPCART_COUNT';
+
+export const SET_CHECK_ORDER = 'SET_CHECK_ORDER';
+
+export const SET_CREATE_ORDER = 'SET_CREATE_ORDER';
+
+export const SET_AREA = 'SET_AREA';
+
+export const SET_REVISE_ADDRESS = 'SET_REVISE_ADDRESS';
+
+export const SET_SELECT_ADDRESS = 'SET_SELECT_ADDRESS';
+
+export const SET_ORDER_ACTIVE = 'SET_ORDER_ACTIVE';

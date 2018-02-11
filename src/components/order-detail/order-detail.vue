@@ -1,7 +1,7 @@
 <template>
   <transition name="slide">
-    <div class="order-detail-wrapper">
-      <navbar></navbar>
+    <div class="order-detail-wrapper" v-if="detail">
+      <navbar title="订单详情"></navbar>
       <div class="order-detail-title">
         <div class="title-text" @click="changeActive('status')" :class="{'active': selected === 'status'}">订单状态
         </div>
@@ -9,68 +9,72 @@
         </div>
       </div>
 
-      <scroll class="order-status" v-show="false">
+      <scroll class="order-status" v-if="detail && selected === 'status'">
         <ul>
-          <li class="status-item">
+          <li class="status-item" v-for="(log, index) in detail.order_log" :key="index">
             <div class="imgs">
-              <img src="./ic_order_type_highlighted@3x.png"/>
-              <img src="./ic_order_type_normal@3x.png"/>
+              <img src="./ic_order_type_highlighted@3x.png" v-show="index === detail.order_log.length -1"/>
+              <img src="./ic_order_type_normal@3x.png" v-show="index !== detail.order_log.length -1"/>
             </div>
             <div class="text-wrapper active">
               <div class="text-first">
-                <div class="status">等待付款</div>
-                <div class="time">2017-09-10 10:90:23</div>
+                <div class="status">{{ log.typeName }}</div>
+                <div class="time">{{ log.create_date }}</div>
               </div>
               <div class="text-two">
                 请在30分钟内完成支付
-                <!--{{ log.typeName === '订单创建' ? '请在30分钟内完成支付' : ''}}-->
-                <!--{{ log.typeName === '订单收款' ? '请耐心等待' : ''}}-->
-                <!--{{ log.typeName === '订单审核' ? '等待发货' : ''}}-->
-                <!--{{ log.typeName === '订单发货' ? `配送员正在飞速赶来的路上，请耐心等候` : ''}}-->
-                <!--{{ log.typeName === '订单收货' ? '您已经收到货物' : ''}}-->
-                <!--{{ log.typeName === '订单完成' ? '该订单已经完成' : ''}}-->
+                {{ log.typeName === '订单创建' ? '请在30分钟内完成支付' : ''}}
+                {{ log.typeName === '订单收款' ? '请耐心等待' : ''}}
+                {{ log.typeName === '订单审核' ? '等待发货' : ''}}
+                {{ log.typeName === '订单发货' ? `配送员正在飞速赶来的路上，请耐心等候` : ''}}
+                {{ log.typeName === '订单收货' ? '您已经收到货物' : ''}}
+                {{ log.typeName === '订单完成' ? '该订单已经完成' : ''}}
               </div>
             </div>
           </li>
         </ul>
       </scroll>
 
-      <scroll class="order-detail">
+      <scroll class="order-detail" v-if="detail && selected === 'detail'" ref="scroll">
         <div>
           <div class="detail-title">配送方式</div>
           <div class="dispatch">
-            <div class="dispatch-title">配送员:</div>
+            <div class="dispatch-title">配送方式:</div>
             <div class="dispatch-content">
-              杨程
-              <a :href="'tel:18148789239'" style="color: #26a2ff">
-                18148789239
-              </a>
+              {{ detail.order.shipping_method_name }}
+              <!--<a :href="'tel:18148789239'" style="color: #26a2ff">-->
+              <!--18148789239-->
+              <!--</a>-->
             </div>
           </div>
 
-          <div class="dispatch">
-            <div class="dispatch-title">配送员:</div>
-            <div class="dispatch-content">
-              暂未发货,请耐心等待
-            </div>
-          </div>
+          <!--<div class="dispatch">-->
+          <!--<div class="dispatch-title">配送员:</div>-->
+          <!--<div class="dispatch-content">-->
+          <!--暂未发货,请耐心等待-->
+          <!--</div>-->
+          <!--</div>-->
 
           <div class="dispatch address">
             <div class="dispatch-title">收货地址:</div>
             <div class="dispatch-content">
-              广东省佛山市顺德区嘉信城市广场1期 管家乐信息科技有限公司 杨程 18148789239
+              {{ detail.order.area_name }} {{ detail.order.address }} {{ detail.order.consignee }} {{ detail.order.phone
+              }}
             </div>
           </div>
 
           <div class="detail-title">商品信息</div>
 
           <div class="order-goods-container">
-            <list-goods></list-goods>
+            <list-goods v-for="(goods, index) in detail.order.order_items"
+                        :key="index"
+                        :goods="goods">
+            </list-goods>
             <div class="price-detail">
               <div class="market-price-wrapper">
                 <div class="market-price">
                   <div class="market">原价总计</div>
-                  <div class="price">￥18.00</div>
+                  <div class="price">￥{{ detail.order.price.toFixed(2) }}</div>
                 </div>
                 <div class="market-price">
                   <div class="market">配送费用</div>
@@ -79,13 +83,13 @@
                 <div class="market-price">
                   <div class="market">优惠金额</div>
                   <div class="price cheap">
-                    -￥10.00
+                    -￥{{ detail.order.promotion_discount.toFixed(2) }}
                   </div>
                 </div>
               </div>
               <div class="total-price">
                 <div class="total-text">订单金额</div>
-                <div class="total-price">￥8.00</div>
+                <div class="total-price">￥{{ detail.order.amount.toFixed(2) }}</div>
               </div>
             </div>
           </div>
@@ -95,32 +99,58 @@
           <div class="order-info">
             <div class="info-item">
               <div class="info-text">订单编号</div>
-              <div class="info-content">2018012351527</div>
+              <div class="info-content">{{ detail.order.sn }}</div>
             </div>
             <div class="info-item">
               <div class="info-text">下单时间</div>
-              <div class="info-content">2018-01-23 16:13:26</div>
+              <div class="info-content">{{ detail.order.create_date }}</div>
             </div>
             <div class="info-item">
               <div class="info-text">支付方式</div>
-              <div class="info-content">网上支付</div>
+              <div class="info-content">{{ detail.order.payment_method_name }}</div>
             </div>
             <div class="info-item">
               <div class="info-text">留&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;言</div>
               <div class="info-content">
-                很好吃
+                {{ detail.order.memo }}
               </div>
             </div>
           </div>
-          <ten-height></ten-height>
         </div>
       </scroll>
 
-      <div class="btn-group">
-        <m-btn :text="'取消订单'" :btn-type="'hollow'"></m-btn>
-        <m-btn :text="'去支付'" :btnType="'solid'"></m-btn>
-        <!--<m-btn :text="'去评价'" :btnType="'solid'" v-show="isShowApprise(orderDetail.order.status)"-->
-        <!--@click.native="_confirmOrder(orderDetail.order.sn)"></m-btn>-->
+      <div class="btn-group" v-if="isShowBtnGroup(detail.order.status)">
+        <m-btn text="取消订单"
+               btnType="hollow"
+               @click.native="_cancelOrder(detail.order.sn, 'detail')"
+               v-if="isShowCancelBtn(detail.order.status)"
+               class="btn-item">
+        </m-btn>
+        <m-btn text="删除订单"
+               btnType="hollow"
+               @click.native="_deleteOrder(detail.order.sn, 'detail')"
+               v-if="isShowDeleteBtn(detail.order.status)"
+               class="btn-item">
+        </m-btn>
+        <m-btn text="申请退款"
+               btnType="hollow"
+               @click.native="_refundsOrder(detail.order.sn, 'detail')"
+               v-if="isShowRefund(detail.order.status)"
+               class="btn-item">
+        </m-btn>
+        <m-btn text="确认收货"
+               btnType="solid"
+               @click.native="_confirmOrder(detail.order.sn, 'detail')"
+               v-if="isShowConfirmBtn(detail.order.status)"
+               class="btn-item">
+        </m-btn>
+        <m-btn text="去支付"
+               btnType="solid"
+               @click.native="toPayPage(detail.order.sn)"
+               v-if="isShowPayBtn(detail.order.status)"
+               class="btn-item"
+        >
+        </m-btn>
       </div>
     </div>
   </transition>
@@ -131,12 +161,29 @@
   import Scroll from 'base/scroll/scroll';
   import MBtn from 'base/btns/m-btn';
   import ListGoods from 'base/list-goods/list-goods';
+  import { getOrderDetail } from 'api/order';
+  import { ERR_OK } from 'api/config';
+  import { getToken } from 'common/js/cache';
+  import { orderMixin } from 'common/js/mixin';
+  import { orderStatus } from 'common/js/order-status';
 
   export default {
+    mixins: [orderMixin],
     data() {
       return {
-        selected: 'detail'
+        selected: 'detail',
+        detail: null
       };
+    },
+    created() {
+      this._getOrderDetail(this.$route.params.sn);
+    },
+    watch: {
+      '$route'(newRoute) {
+        if (newRoute.name === '订单详情') {
+          this._getOrderDetail(this.$route.params.sn);
+        }
+      }
     },
     methods: {
       changeActive(selected) {
@@ -144,6 +191,35 @@
           return;
         }
         this.selected = selected;
+      },
+      _getOrderDetail(sn) {
+        getOrderDetail(getToken(), sn).then((res) => {
+          if (res.code === ERR_OK) {
+            res.datum.order.order_items.forEach((item) => {
+              item.thumbnail = res.imageUrl + item.thumbnail;
+            });
+
+            this.detail = res.datum;
+            this.setScrollHeight(this.detail.order.status);
+          }
+        });
+      },
+      isShowBtnGroup(status) {
+        if (status === orderStatus.completed || status === orderStatus.refunding) {
+          return false;
+        }
+        return true;
+      },
+      setScrollHeight(status) {
+        if (status === orderStatus.completed || status === orderStatus.refunding) {
+          setTimeout(() => {
+            this.$refs.scroll.$el.style.bottom = 0;
+          }, 20);
+        } else {
+          setTimeout(() => {
+            this.$refs.scroll.$el.style.bottom = '1rem';
+          }, 20);
+        }
       }
     },
     components: {
@@ -237,10 +313,10 @@
             color: #a2a2a2
     .order-detail
       position: fixed
-      top: 1rem
+      top: 2rem
       left: 0
       right: 0
-      bottom: 1rem
+      bottom: 0
       z-index: -1
       overflow: hidden
       .detail-title

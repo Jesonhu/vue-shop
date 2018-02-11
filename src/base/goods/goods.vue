@@ -1,27 +1,30 @@
 <template>
-  <div class="goods-wrapper" :class="goodsType">
+  <div class="goods-wrapper" :class="goodsType" v-if="goods">
     <div class="goods-img-wrapper" :class="goodsType">
       <img class="goods-img"
            :class="goodsType"
-           v-lazy="'http://www.omengo.com//upload/image/201711/52e53672-9c78-49ac-b57d-d8c631f7ebda_thumbnail.jpg'"
-           @click="toGoodsDetail"/>
+           v-lazy="goods.image"
+           @click="toGoodsDetail(goods.id)"
+           @load="_loadImage"/>
     </div>
     <div class="goods-detail" :class="goodsType">
-      <div class="brand-name" :class="goodsType">银鹭<span class="name">银鹭花生牛奶饮料盒装银鹭花生牛奶饮料盒装</span>
+      <div class="brand-name" :class="goodsType">{{ goods.brand }}<span class="name">{{ goods.name }}</span>
       </div>
-      <div class="unit">250ml/盒</div>
-      <div class="price">￥2.50</div>
+      <div class="unit">{{ goods.unit }}</div>
+      <div class="price">￥{{ parseFloat(goods.price).toFixed(2) }}</div>
     </div>
-    <img class="add-img" src="./shop_plus.png" @click="add"/>
+    <img class="add-img" src="./shop_plus.png" @click="add(goods)"/>
     <promotions class="promotions" :promotions="promotions"></promotions>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import { mapMutations } from 'vuex';
   import Promotions from 'base/promotions/promotions';
+  import { mapMutations } from 'vuex';
+  import { skuMixin } from 'common/js/mixin';
 
   export default {
+    mixins: [skuMixin],
     props: {
       goodsType: {
         type: String,
@@ -29,6 +32,10 @@
       },
       promotions: {
         type: String,
+        defalut: null
+      },
+      goods: {
+        type: Object,
         defalut: null
       }
     },
@@ -38,11 +45,15 @@
       };
     },
     methods: {
-      toGoodsDetail() {
-        this.$router.push('/detail');
+      toGoodsDetail(goodsId) {
+        this.$router.push(`/detail/${goodsId}`);
       },
-      add() {
-        this.setSkuStatus(true);
+      add(goods) {
+        // this.setSkuStatus(true);
+        this._showSku(goods);
+      },
+      _loadImage() {
+        this.$emit('loadImage');
       },
       ...mapMutations({
         setSkuStatus: 'SET_SKU_STATUS'
@@ -85,6 +96,7 @@
     .goods-detail
       &.category
         flex: 1
+        margin-left: .2rem
         > .brand-name, .unit, .price
           height: .5rem
           line-height: .5rem
@@ -114,6 +126,6 @@
       height: .5rem
     .promotions
       position: absolute
-      top: .2rem
-      left: .2rem
+      top: .1rem
+      left: .1rem
 </style>

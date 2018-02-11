@@ -1,4 +1,4 @@
 export const smsType = {
-  memberLogin: 'memberLogin',
-  memberRegister: 'memberRegister'
+  MEMBER_LOGIN: 'memberLogin',
+  MEMBER_REGISTER: 'memberRegister'
 };

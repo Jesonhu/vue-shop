@@ -21,13 +21,22 @@
       title: {
         type: String,
         default: '标题'
+      },
+      path: {
+        type: String,
+        default: null
       }
     },
     methods: {
       onClickLeft() {
-        this.$router.back();
+        if (!this.path) {
+          this.$router.back();
+        } else {
+          this.$router.push(this.path);
+        }
       },
       onClickRight() {
+        this.$emit('righClick');
       }
     },
     components: {

@@ -52,7 +52,7 @@
   import { smsType } from 'common/js/smsType';
   import { sendSmsMixin } from 'common/js/mixin';
   import { Toast } from 'vant';
-  import { saveUserInfo } from 'common/js/cache';
+  import { saveUserInfo, saveToken } from 'common/js/cache';
 
   export default {
     mixins: [sendSmsMixin],
@@ -87,11 +87,16 @@
         this.$router.push('/login_password');
       },
       _sendSms() {
+        let mPattern = /^1[34578]\d{9}$/;
+        if (!mPattern.test(this.username)) {
+          Toast('请输入正确的手机号码');
+          return;
+        }
         if (this.sendSmsActive === '') {
           return;
         }
 
-        sendSms(this.username, smsType.memberLogin).then((res) => {
+        sendSms(this.username, smsType.MEMBER_LOGIN).then((res) => {
           if (res.code === ERR_OK) {
             this.countDown();
             Toast.success(res.message);
@@ -108,6 +113,9 @@
             saveUserInfo(JSON.stringify(res.info));
             this.setLoginModal(false);
             this.setUserInfo(res.info);
+            this.username = null;
+            this.sms = null;
+            saveToken(res.token);
             Toast.success('登陆成功!');
           }
         });
@@ -143,7 +151,7 @@
     .login-form
       box-sizing: border-box
       position: absolute
-      top: 40%
+      top: 50%
       left: 50%
       transform: translate(-50%, -50%)
       padding: .2rem
@@ -157,8 +165,6 @@
         display: flex
         align-items: center
         margin-bottom: .3rem
-        height: .8rem
-        line-height: .8rem
         &:first-child
           margin-top: .8rem
         .img
@@ -169,7 +175,7 @@
           flex: 1
           display: flex
           position: relative
-          height: 1rem
+          height: .8rem
           &::after
             border-bottom-1px(#ddd)
           .input
@@ -177,6 +183,7 @@
             vertical-align: top
             flex: 1
             height: 1rem
+            border: none
           .sms
             position: absolute
             top: .1rem
@@ -227,7 +234,7 @@
               margin-bottom: .1rem
               width: .5rem
               height: .5rem
-              border: 2px solid #ddd
+              border: 1px solid #ddd
               border-radius: 50%
             .list-text
               text-align: center

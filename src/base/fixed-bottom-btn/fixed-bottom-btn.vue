@@ -49,5 +49,5 @@
       background: #c5c5c5
       &.active
         color: $color-text
-        background: #f44
+        background: #06bf04
 </style>

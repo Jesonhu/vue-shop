@@ -1,56 +1,98 @@
 <template>
   <div class="category-container">
-    <div class="search-wrapper">
+    <router-link to="/search" tag="div" class="search-wrapper">
       <img class="img" src="./category_search.png"/>
-    </div>
+    </router-link>
     <div class="category-wrapper">
       <scroll class="category-left">
         <div>
-          <div class="left-item" v-for="(n,index) in 20" :key="n" @click="changeIndex(index)">
-            <span :class="n === currentLeftCategoryIndex && 'active'">测试分类</span>
+          <div class="left-item"
+               v-for="(first,index) in firstCategory"
+               :key="index"
+               @click="changeFirstIndex(index)">
+            <span :class="index === firstIndex && 'active'">{{ first.name }}</span>
           </div>
         </div>
       </scroll>
-      <div class="category-right">
+      <div class="category-right" v-if="goodsList" >
         <div class="right-title">
           <div class="title-wrapper">
             <span class="title" @click="toggleModal('all')">
-                全部分类
+                {{ allText }}
                <img class="arrow" src="./ic_filter_arrow.png" v-show="modal === 'all'">
                <img class="arrow" src="./ic_filter_up.png" v-show="modal !== 'all'">
             </span>
             <span class="title" @click="toggleModal('sort')">
-                综合排序
+                {{ sortText }}
                 <img class="arrow" src="./ic_filter_arrow.png" v-show="modal === 'sort'">
                 <img class="arrow" src="./ic_filter_up.png" v-show="modal !== 'sort'">
             </span>
 
             <div class="grid-list" @click="toggleGoodsListType">
-              <img class="img" src="./ic_goods_list_grid.png"/>
+              <img class="img" src="./ic_goods_list_grid.png" v-show="goodsListType === 'grid'"/>
+              <img class="img" src="./ic_goods_list_list.png" v-show="goodsListType === 'list'"/>
             </div>
           </div>
         </div>
-        <div class="modal" v-show="modalStatus" @click="toggleModal()">
+        <div class="modal" v-show="modalStatus && modal === 'all'" @click="toggleModal()">
           <div class="types">
-            <span class="type-item" v-for="n in 5" :key="n" :class="n === 1 && 'active'">
-              百事可乐
+            <span class="type-item"
+                  v-for="(second, index) in secondCategory"
+                  :key="index"
+                  :class="index === secondIndex && 'active'"
+                  @click="changeSecondIndex(index)">
+              {{ second.name }}
             </span>
           </div>
         </div>
 
-        <scroll class="goods-list" v-show="goodsListType === 'grid'">
+        <div class="modal" v-show="modalStatus && modal === 'sort'" @click="toggleModal()">
+          <div class="types">
+            <span class="type-item"
+                  v-for="(type, index) in sortTypes"
+                  :key="index"
+                  :class="index === typeIndex && 'active'"
+                  @click="changeTypeIndex(index)">
+              {{ type.name }}
+            </span>
+          </div>
+        </div>
+
+        <scroll class="goods-list"
+                v-if="goodsListType === 'grid' &&  goodsList.list.length >= 1"
+                :pullup="true"
+                :data="goodsList.list"
+                @scrollToEnd="loadMore"
+                ref="scroll">
           <div>
-            <goods v-for="n in 15" :key="n" class="grid-goods"></goods>
-            <loaded-bottom></loaded-bottom>
+            <goods v-for="(goods, index) in goodsList.list"
+                   :key="index"
+                   :goods="goods"
+                   class="grid-goods">
+            </goods>
+            <loaded-bottom v-show="goodsList.lastPage"></loaded-bottom>
+            <loading v-show="!goodsList.lastPage"></loading>
           </div>
         </scroll>
 
-        <scroll class="goods-list" v-show="goodsListType === 'list'">
+        <scroll class="goods-list"
+                v-if="goodsListType === 'list' && goodsList.list.length >= 1"
+                :data="goodsList.list"
+                ref="scroll">
           <div>
-            <goods v-for="n in 15" :key="n" :goods-type="'category'" class="list-goods"></goods>
-            <loaded-bottom></loaded-bottom>
+            <goods v-for="(goods, index) in goodsList.list"
+                   :key="index"
+                   :goods-type="'category'"
+                   :goods="goods"
+                   :pullup="true"
+                   @scrollToEnd="loadMore"
+                   class="list-goods">
+            </goods>
+            <loaded-bottom v-show="goodsList.lastPage"></loaded-bottom>
           </div>
         </scroll>
+
+        <empty src="category" text="哭瞎,没有该商品" v-if="goodsList.list.length === 0"></empty>
       </div>
     </div>
   </div>
@@ -60,24 +102,64 @@
   import Scroll from 'base/scroll/scroll';
   import Goods from 'base/goods/goods';
   import LoadedBottom from 'base/loaded-bottom/loaded-bottom';
+  import Empty from 'base/empty/empty';
+  import { findRoots, findChildren, findProducts } from 'api/category';
+  import { ERR_OK } from 'api/config';
+  import Loading from 'base/loading/loading';
 
   const TYPE = {
     grid: 'grid',
     list: 'list'
   };
 
+  export const sortType = [
+    { name: '综合排序', type: 'topDesc' },
+    { name: '价格升序', type: 'priceAsc' },
+    { name: '价格降序', type: 'priceDesc' },
+    { name: '销量降序', type: 'salesDesc' },
+    { name: '评分降序', type: 'scoreDesc' },
+    { name: '日期降序', type: 'dateDesc' }
+  ];
+
   export default {
     data() {
       return {
-        currentLeftCategoryIndex: 3,
+        firstIndex: 0,
+        secondIndex: null,
+        typeIndex: null,
         modal: null,
         modalStatus: false,
-        goodsListType: TYPE.grid
+        goodsListType: TYPE.grid,
+        firstCategory: [],
+        secondCategory: [],
+        sortTypes: null,
+        goodsList: null,
+        allText: '全部分类',
+        sortText: '全部排序'
       };
     },
+    created() {
+      this._findRoots();
+      this.sortTypes = sortType;
+    },
     methods: {
-      changeIndex(index) {
-        this.currentLeftCategoryIndex = index + 1;
+      changeFirstIndex(index) {
+        this.allText = '全部分类';
+        this.modalStatus = false;
+        this.secondIndex = null;
+
+        this.firstIndex = index;
+        this._findChildren(this.firstCategory[index].id);
+        this._findProducts(this.firstCategory[index].id);
+      },
+      changeSecondIndex(index) {
+        this.secondIndex = index;
+        this.allText = this.secondCategory[index].name;
+        this._findProducts(this.secondCategory[index].id);
+      },
+      changeTypeIndex(index) {
+        this.typeIndex = index;
+        this.sortText = this.sortTypes[index].name;
       },
       toggleModal(modal) {
         if (!this.modalStatus) {
@@ -96,12 +178,58 @@
         } else {
           this.goodsListType = TYPE.grid;
         }
+      },
+      _findRoots() {
+        findRoots().then((res) => {
+          if (res.code === ERR_OK) {
+            this.firstCategory = res.datum;
+            this._findChildren(this.firstCategory[0].id);
+            this._findProducts(this.firstCategory[0].id);
+          }
+        });
+      },
+      _findChildren(firstCategoryId) {
+        findChildren(firstCategoryId).then((res) => {
+          if (res.code === ERR_OK) {
+            this.secondCategory = res.data;
+          }
+        });
+      },
+      _findProducts(categoryId, pageNumber) {
+        findProducts(categoryId, pageNumber).then((res) => {
+          if (res.code === ERR_OK) {
+            res.datum.list.forEach((item) => {
+              item.image = res.imageUrl + item.image;
+            });
+
+            if (!pageNumber || pageNumber === 1) {
+              this.goodsList = res.datum;
+            } else {
+              this.goodsList.pageNumber = res.datum.pageNumber;
+              this.goodsList.lastPage = res.datum.lastPage;
+              this.goodsList.list = this.goodsList.list.concat(res.datum.list);
+            }
+            this.currentCategoryId = categoryId;
+            // setTimeout(() => {
+            //   this.$refs.scroll.refresh();
+            // }, 20);
+          }
+        });
+      },
+      loadMore() {
+        if (this.goodsList.lastPage) {
+          return;
+        }
+        const pageNumber = this.goodsList.pageNumber + 1;
+        this._findProducts(this.currentCategoryId, pageNumber);
       }
     },
     components: {
+      Loading,
       Scroll,
       Goods,
-      LoadedBottom
+      LoadedBottom,
+      Empty
     }
   };
 </script>
@@ -205,10 +333,12 @@
           bottom: 0
           overflow: hidden
           .grid-goods
-            width: 36.5vw
+            width: 36vw
             margin: 2.5px
           .list-goods
             position: relative
             &::after
               border-bottom-1px(#ddd)
+          .loading-contaner
+            text-align: center
 </style>

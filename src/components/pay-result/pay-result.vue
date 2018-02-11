@@ -17,7 +17,7 @@
         </div>
         <div class="content-item">
           <div class="text">商家配送</div>
-          <div class="content">邻檬圈配送</div>
+          <div class="content">普通快递</div>
         </div>
         <div class="content-item info">
           商家正在为您配送货物
@@ -26,7 +26,7 @@
 
       <div class="dispatch-phone">
         <img class="service" src="./icon_green_call.png" alt="服务电话"/>
-        <p class="dispatch-text">服务电话 <a href="tel:0757-88793383">0757-88793383</a></p>
+        <p class="dispatch-text">服务电话 <a href="tel:0757-80040000">0757-80040000</a></p>
       </div>
 
       <router-link to="/order">
