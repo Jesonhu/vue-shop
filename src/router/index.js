@@ -39,7 +39,7 @@ export default new Router({
     { path: '/shopcart', component: Shopcart, name: '购物车' },
     { path: '/shopcart_order', component: ShopcartOrder, name: '购物车订单' },
     { path: '/pay/:sn', component: Pay, name: '支付' },
-    { path: '/pay_result', component: PayResult, name: '支付结果' },
+    { path: '/pay_result/:sn', component: PayResult, name: '支付结果' },
     { path: '/detail/:id', component: Detail, name: '商品详情' },
     { path: '/address/:type', component: Address, name: '地址列表' },
     { path: '/address_edit/:type', component: AddressdEdit, name: '编辑地址' },

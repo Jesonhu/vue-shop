@@ -16,7 +16,9 @@
           <img class="img" src="./login_code_21x21.png"/>
           <input class="input" type="password" placeholder="请输入密码" v-model="password">
         </div>
-        <fixed-bottom-btn :active="registerBtn" :text="'注册'" @click.native="_registerApi"></fixed-bottom-btn>
+        <fixed-bottom-btn :active="registerBtn" :text="'注册'" @click.native="_registerApi" v-show="show">
+
+        </fixed-bottom-btn>
       </div>
     </div>
   </transition>
@@ -31,6 +33,9 @@
   import { smsType } from 'common/js/smsType';
   import { Toast } from 'vant';
   import { sendSmsMixin } from 'common/js/mixin';
+  import { windowResize } from 'common/js/util';
+
+  const clientHeight = window.innerHeight;
 
   export default {
     mixins: [sendSmsMixin],
@@ -39,12 +44,13 @@
         username: '',
         sms: '',
         smsText: '获取验证码',
-        password: ''
+        password: '',
+        show: true
       };
     },
     computed: {
       registerBtn() {
-        if (this.username.length === 11 && this.sms.length === 4) {
+        if (this.username.length === 11 && this.sms.length === 4 && this.password.length) {
           return true;
         }
         return false;
@@ -67,12 +73,20 @@
         if (!this.registerBtn) {
           return;
         }
-
         register(this.username, this.sms, this.password).then((res) => {
           if (res.code === ERR_OK) {
-            Toast.success(res.message);
-            this.$router.push('/member');
+            Toast.success('注册成功');
+            setTimeout(() => {
+              this.$router.push('/member');
+            }, 1000);
           }
+        });
+      },
+      _windowResize() {
+        windowResize(clientHeight, () => {
+          this.show = true;
+        }, () => {
+          this.show = false;
         });
       }
     },

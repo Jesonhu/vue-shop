@@ -33,17 +33,27 @@
   import { Toast } from 'vant';
   import { checkPassword, upatePassword } from 'api/password';
   import { ERR_OK } from 'api/config';
-  import { getToken } from 'common/js/cache';
+  import { getToken, getUserInfo } from 'common/js/cache';
 
   export default {
     data() {
       return {
-        phone: 18148789239,
+        phone: null,
         oldPassword: null,
         newPassword1: null,
         newPassword2: null,
         check: false
       };
+    },
+    created() {
+      this.phone = getUserInfo().username;
+    },
+    watch: {
+      '$route'(newRoute) {
+        if (newRoute.name === '修改密码') {
+          this.phone = getUserInfo().username;
+        }
+      }
     },
     computed: {
       active() {

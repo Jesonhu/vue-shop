@@ -116,9 +116,19 @@
             this.username = null;
             this.sms = null;
             saveToken(res.token);
+            // this._getOppenId(res.info.id, res.info.open_id);
             Toast.success('登陆成功!');
           }
         });
+      },
+      _getOppenId(memberId, oppenId) {
+        if (oppenId) {
+          return;
+        }
+        const urlForward = window.location.hash.split('#/')[1];
+        const url = '/api/payment/getToken.jhtml';
+
+        window.location.href = `http://b2c.jfinalshop.com${url}?memberId=${memberId}&url_forward=${urlForward}`;
       },
       ...mapMutations({
         setLoginModal: 'SET_LOGIN_MODAL',

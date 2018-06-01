@@ -48,7 +48,6 @@
         this.buyClick(obj);
       },
       _addCart(obj) {
-        console.log(obj);
         this._addShopcart(obj.goodsId, obj.selectedNum);
         this.show = false;
       },

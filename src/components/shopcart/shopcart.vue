@@ -3,7 +3,7 @@
     <div class="shopcart-container">
       <navbar :right-text="rightText"
               title="购物车"
-              @righClick="edit">
+              @rightClick="edit">
       </navbar>
       <scroll class="shopcart-list" v-if="goodsList">
         <div>
@@ -11,8 +11,8 @@
             <van-checkbox
               class="card-goods__item"
               v-for="item in goodsList"
-              :key="item.id"
-              :name="item.id"
+              :key="item.product_id"
+              :name="item.product_id"
             >
               <van-card
                 class="cart"
@@ -23,7 +23,7 @@
                 :thumb="item.image"
               >
                 <div slot="footer">
-                  <van-stepper v-model="item.quantity" @change="change(item.id, item.quantity)"/>
+                  <van-stepper v-model="item.quantity" @change="change(item.product_id, item.quantity)"/>
                 </div>
               </van-card>
             </van-checkbox>
@@ -39,7 +39,8 @@
         <van-checkbox v-model="checked" class="submit-all-btn" @click.native="selectAll">全选</van-checkbox>
       </van-submit-bar>
 
-      <empty src="shopcart" text="您的购物车还没有商品..." v-if="!goodsList"></empty>
+      <empty src="shopcart" text="您的购物车还没有商品..." v-if="!goodsList">
+      </empty>
     </div>
   </transition>
 </template>
@@ -97,6 +98,8 @@
     watch: {
       '$route'(newRoute) {
         if (newRoute.name === '购物车') {
+          this.rightText = '编辑';
+          this.buttonText = '提交订单';
           this.checked = false;
           this.checkedGoods = [];
           this._getShopcartList();
@@ -203,14 +206,23 @@
         });
       },
       _deleteShopcartItem() {
-        const ids = this.checkedGoods + '';
-
-        deleteShopcartItem(getCartKey(), ids).then((res) => {
-          if (res.code === ERR_OK) {
-            Toast.success('删除成功!');
-            this._getShopcartList();
-          }
+        // const ids = this.checkedGoods + '';
+        let ids = [];
+        this.checkedGoods.forEach((item) => {
+          let index = this.goodsList.findIndex((value) => {
+            return item === value.product_id;
+          });
+          ids.push(this.goodsList[index].id);
         });
+        if (ids.length >= 1) {
+          deleteShopcartItem(getCartKey(), ids + '').then((res) => {
+            if (res.code === ERR_OK) {
+              Toast.success('删除成功!');
+              this.checkedGoods = [];
+              this._getShopcartList();
+            }
+          });
+        }
       },
       selectAll() {
         if (this.checkedGoods.length === 0 || this.checkedGoods.length < this.goodsList.length) {
@@ -218,7 +230,7 @@
           this.goodsList.forEach((goods) => {
             this.checkedGoods.push(goods.product_id);
           });
-          return;
+          return false;
         }
         if (this.checkedGoods.length === this.goodsList.length) {
           this.checkedGoods = [];
@@ -281,6 +293,9 @@
         background-color: #fafafa
         &::after
           border-bottom-1px(#ddd)
+        .van-checkbox--round
+          position: absolute
+          top: 35%
         .van-checkbox__input
           top: 50%
           position: absolute
@@ -291,15 +306,15 @@
           box-sizing: border-box
         .van-card__price
           color: #f44
-
 </style>
 
 <style lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
   .submit-all-btn
+    width: 60px
     margin-left: 10px
     font-size: 14px
-    .van-checkbox__label
-      position: relative
-      top: 3px
+  .van-checkbox__label
+    position: relative
+    top: 2px
 </style>

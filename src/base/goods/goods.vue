@@ -14,7 +14,9 @@
       <div class="price">￥{{ parseFloat(goods.price).toFixed(2) }}</div>
     </div>
     <img class="add-img" src="./shop_plus.png" @click="add(goods)"/>
-    <promotions class="promotions" :promotions="promotions"></promotions>
+    <slot></slot>
+    <promotions class="promotions" :promotions="promotions">
+    </promotions>
   </div>
 </template>
 
@@ -67,7 +69,7 @@
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable.styl'
-  @import '~common/stylus/mixin.styl'
+  @import '~common/stylus/mixin'
 
   .goods-wrapper
     display: inline-block

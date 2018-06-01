@@ -61,7 +61,8 @@
     },
     computed: {
       active() {
-        if (this.consignee && this.phone && this.phone.length === 11 && this.address) {
+        const reg = /^1[345678]\d{9}$/;
+        if (this.consignee && reg.test(this.phone) && this.address) {
           return true;
         }
         return false;
@@ -219,5 +220,6 @@
             flex: 0 0 1.6rem
           .input
             flex: 1
+            border: none
             background: #fff
 </style>

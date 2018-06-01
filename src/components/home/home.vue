@@ -82,8 +82,8 @@
   import Scroll from 'base/scroll/scroll';
   import LoadedBottom from 'base/loaded-bottom/loaded-bottom';
   import Sku from 'base/sku/sku';
-  // import FailImg from './img_error_big.jpg';
-  import FailImg from './home_category_02.png';
+  import FailImg from './img_error_big.jpg';
+  // import FailImg from './home_category_02.png';
 
   export default {
     data() {

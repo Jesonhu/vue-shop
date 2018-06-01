@@ -21,7 +21,8 @@
           <div class="loading-container">
             <van-loading type="gradient-circle" color="black" v-show="!goodsList.lastPage" class="loading"/>
           </div>
-          <loaded-bottom v-show="goodsList.list.length >= 1 &&goodsList.lastPage"></loaded-bottom>
+          <loaded-bottom v-show="goodsList.list.length >= 1 &&goodsList.lastPage">
+          </loaded-bottom>
         </div>
       </scroll>
       <scroll class="wrapper"
@@ -35,7 +36,8 @@
                  class="goods">
 
           </goods>
-          <loaded-bottom v-show="goodsList"></loaded-bottom>
+          <loaded-bottom v-show="goodsList">
+          </loaded-bottom>
         </div>
       </scroll>
       <empty src="category" text="哭瞎，还没该商品..." v-if="showEmpty">
@@ -52,7 +54,7 @@
   import Empty from 'base/empty/empty';
   import LoadedBottom from 'base/loaded-bottom/loaded-bottom';
   import { mapMutations, mapGetters } from 'vuex';
-  import { Loading } from 'vant';
+  import { Toast, Loading } from 'vant';
   import { getHotGoods, getNewProducts, getRecommendGoods, getAlwaysBuyGoods } from 'api/home';
   import { ERR_OK } from 'api/config';
   import { getToken } from 'common/js/cache';
@@ -120,6 +122,7 @@
       '$route'(newRoute) {
         if (newRoute.name === '首页商品') {
           this.getGoodsList();
+          Toast.clear();
         }
       },
       loginModal(newStatus) {

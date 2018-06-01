@@ -18,7 +18,6 @@
             :show-exchange-bar="false"
             :show-close-button="showCloseButton"
             @change="onChange"
-            @exchange="onExchange"
           />
         </div>
       </scroll>
@@ -37,18 +36,6 @@
   import Navbar from 'base/navbar/navbar';
   import Empty from 'base/empty/empty';
   import Scroll from 'base/scroll/scroll';
-
-  const coupon = {
-    available: 1,
-    discount: 0,
-    denominations: 150,
-    origin_condition: 0,
-    reason: '',
-    value: 150,
-    name: '优惠券名称',
-    start_at: 1489104000,
-    end_at: 1514592000
-  };
 
   export default {
     data() {
@@ -99,10 +86,6 @@
         this.$router.back();
         this.chosenCoupon = index;
       },
-      onExchange(code) {
-        coupon.name = '优惠卷' + parseFloat(Math.random() * 10);
-        this.coupons.push(coupon);
-      },
       _getAllCounpon() {
         getAllCoupon(getToken()).then((res) => {
           if (res.code === ERR_OK) {
@@ -113,6 +96,7 @@
               const amount = coupon.amount * 100;
               if (coupon.is_used) {
                 this.coupons.push({
+                  id: coupon.id,
                   discount: 0,
                   denominations: amount,
                   origin_condition: 0,
@@ -124,6 +108,7 @@
                 });
               } else {
                 this.coupons.push({
+                  id: coupon.id,
                   discount: 0,
                   denominations: amount,
                   origin_condition: 0,

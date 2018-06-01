@@ -15,7 +15,7 @@
 
       <scroll class="search-container" v-show="!goodsList">
         <div>
-          <div class="search-content" v-show="historyKeys">
+          <div class="search-content" v-show="historyKeys && historyKeys.length !== 0">
             <div class="search-header">
               <img class="header-img" src="./goodSearch_temp_hitstory@2x.png" alt="历史">
               <div class="header-text">搜索历史</div>
@@ -53,10 +53,19 @@
                  :goods-type="'medium'">
           </goods>
           <!--<ten-height></ten-height>-->
-          <loaded-bottom v-if="goodsList"></loaded-bottom>
+          <loaded-bottom v-if="goodsList">
+          </loaded-bottom>
         </ul>
         <!--<div class="no-search-goods" v-show="searchGoods && searchGoods.length === 0 && searchWord">对不起,暂无该商品!</div>-->
       </scroll>
+
+      <empty
+        src="category"
+        text="对不起,暂时没有该商品"
+        v-show="goodsList && goodsList.length === 0"
+      >
+
+      </empty>
     </div>
   </transition>
 </template>
@@ -69,6 +78,7 @@
   import Scroll from 'base/scroll/scroll';
   import Goods from 'base/goods/goods';
   import LoadedBottom from 'base/loaded-bottom/loaded-bottom';
+  import Empty from 'base/empty/empty';
 
   export default {
     data() {
@@ -87,11 +97,13 @@
       this._getHotKye();
     },
     watch: {
-      '$route'(newRoute) {
+      '$route'(newRoute, oldRoute) {
         if (newRoute.name === '搜索') {
-          this.goodsList = null;
-          this.searchWord = null;
-          this.historyKeys = getSearch();
+          if (oldRoute.name === '首页' || oldRoute.name === '分类') {
+            this.goodsList = null;
+            this.searchWord = null;
+            this.historyKeys = getSearch();
+          }
         }
       }
     },
@@ -107,16 +119,18 @@
         });
       },
       _search(keyword) {
-        if (keyword) {
+        if (typeof keyword === 'string') {
           this.searchWord = keyword;
         }
         saveSearch(this.searchWord);
         search(this.searchWord).then((res) => {
           if (res.code === ERR_OK) {
-            res.data.forEach((item) => {
-              item.image = res.imageUrl + item.image;
-            });
-
+            if (res.data) {
+              res.data.forEach((item) => {
+                item.image = res.imageUrl + item.image;
+                item.price = item.defaultProduct.price.toFixed(2);
+              });
+            }
             this.goodsList = res.data;
           }
         });
@@ -124,6 +138,7 @@
       clearKeyword() {
         this.searchWord = '';
         this.goodsList = null;
+        this.historyKeys = getSearch();
       },
       clearHistort() {
         Dialog.confirm({
@@ -142,7 +157,8 @@
       [Dialog.name]: Dialog,
       Scroll,
       Goods,
-      LoadedBottom
+      LoadedBottom,
+      Empty
     }
   };
 </script>

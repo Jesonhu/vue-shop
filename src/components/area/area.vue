@@ -3,7 +3,7 @@
     <div class="area-container">
       <navbar title="区域选择"></navbar>
       <van-notice-bar :scrollable="false">
-       {{ area.name ? area.name : '暂未选择区域'}}
+        {{ area.name ? area.name : '暂未选择区域'}}
       </van-notice-bar>
       <scroll class="area-list">
         <ul>
@@ -67,6 +67,9 @@
         });
       },
       selectArea(name, parentId) {
+        if (this.area.name === name) {
+          return;
+        }
         this.area = {
           name: this.area.name + name,
           id: parentId

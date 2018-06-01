@@ -1,23 +1,23 @@
 <template>
   <transition name="slide2">
-    <div class="pay-result">
-      <navbar></navbar>
+    <div class="pay-result" v-if="result">
+      <navbar title="支付结果" path="/order"></navbar>
       <div class="result-text">网上支付</div>
 
       <div class="result-content">
         <div class="content-item">
           <div class="text">支付金额</div>
           <div class="content price">
-            ￥30.00
+            ￥{{ result.amountPaid }}
           </div>
         </div>
         <div class="content-item">
           <div class="text">支付方式</div>
-          <div class="content">在线支付</div>
+          <div class="content">{{ result.paymentMethodName }}</div>
         </div>
         <div class="content-item">
           <div class="text">商家配送</div>
-          <div class="content">普通快递</div>
+          <div class="content">{{ result.shippingMethodName }}</div>
         </div>
         <div class="content-item info">
           商家正在为您配送货物
@@ -30,7 +30,8 @@
       </div>
 
       <router-link to="/order">
-        <fixed-bottom-btn :text="'返回订单列表'" :active="true"></fixed-bottom-btn>
+        <fixed-bottom-btn :text="'返回订单列表'" :active="true">
+        </fixed-bottom-btn>
       </router-link>
     </div>
   </transition>
@@ -39,8 +40,35 @@
 <script type="text/ecmascript-6">
   import Navbar from 'base/navbar/navbar';
   import FixedBottomBtn from 'base/fixed-bottom-btn/fixed-bottom-btn';
+  import { getPayResult } from 'api/pay';
+  import { ERR_OK } from 'api/config';
+  import { getToken } from 'common/js/cache';
 
   export default {
+    data() {
+      return {
+        result: null
+      };
+    },
+    created() {
+      this._getPayResult();
+    },
+    watch: {
+      '$route'(newRoute) {
+        if (newRoute.name === '支付结果') {
+          this._getPayResult();
+        }
+      }
+    },
+    methods: {
+      _getPayResult() {
+        getPayResult(getToken(), this.$route.params.sn).then((res) => {
+          if (res.code === ERR_OK) {
+            this.result = res.datum;
+          }
+        });
+      }
+    },
     components: {
       Navbar,
       FixedBottomBtn

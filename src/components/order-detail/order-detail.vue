@@ -37,7 +37,6 @@
 
       <scroll class="order-detail" v-if="detail && selected === 'detail'" ref="scroll">
         <div>
-          <div class="detail-title">配送方式</div>
           <div class="dispatch">
             <div class="dispatch-title">配送方式:</div>
             <div class="dispatch-content">
@@ -94,7 +93,7 @@
             </div>
           </div>
 
-          <div class="detail-title">商品信息</div>
+          <div class="detail-title">订单信息</div>
 
           <div class="order-info">
             <div class="info-item">
@@ -313,7 +312,7 @@
             color: #a2a2a2
     .order-detail
       position: fixed
-      top: 2rem
+      top: 1.8rem
       left: 0
       right: 0
       bottom: 0

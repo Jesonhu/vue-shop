@@ -18,7 +18,7 @@
               <div class="goods-price">￥{{ goodsDetail.goods.price.toFixed(2) }}</div>
             </van-cell>
             <van-cell class="goods-express">
-              <van-col span="10">运费：{{ goods.express }}</van-col>
+              <van-col span="10">运费：免运费</van-col>
               <van-col span="14">剩余：{{ goodsDetail.goods.availableStock }}</van-col>
             </van-cell>
           </van-cell-group>
@@ -113,7 +113,6 @@
     },
     created() {
       this._getGoodsDetail(this.$route.params.id);
-      Toast.allowMultiple();
     },
     computed: {
       count() {
@@ -131,13 +130,6 @@
         if (newRoute.name === '商品详情') {
           this._getGoodsDetail(this.$route.params.id);
         }
-      },
-      goodsDetail() {
-        if (!this.goodsDetail) {
-          Toast.loading();
-        } else {
-          Toast.clear();
-        }
       }
     },
     methods: {
@@ -145,6 +137,7 @@
         this.$router.back();
       },
       _getGoodsDetail(goodsId) {
+        Toast.loading();
         getGoodsDetail(goodsId).then((res) => {
           if (res.code === ERR_OK) {
             res.datum.goods.image = res.imageUrl + res.datum.goods.image;
@@ -152,7 +145,7 @@
               item.image = res.imageUrl + item.image;
             });
             this.goodsDetail = res.datum;
-
+            this.setShopcartCount(this.shopcartCount + 1);
             setTimeout(() => {
               this.$refs.scroll.scrollTo(0, 0);
             }, 20);
@@ -183,7 +176,8 @@
         ]);
       },
       ...mapMutations({
-        setSkuStatus: 'SET_SKU_STATUS'
+        setSkuStatus: 'SET_SKU_STATUS',
+        setShopcartCount: 'SET_SHOPCART_COUNT'
       }),
       ...mapActions([
         'showSku',

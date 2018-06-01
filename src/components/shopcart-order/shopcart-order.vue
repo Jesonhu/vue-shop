@@ -205,6 +205,7 @@
         box-sizing: border-box
         flex: 1
         height: .8rem
+        border: none
         padding-right: .2rem
         text-align: right
         font-size: $font-size-medium
@@ -229,10 +230,6 @@
 
 <style lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
-
-  .pay-methods
-    > .van-checkbox__input
-      float: right
 
   .van-cell
     padding: .2rem .3rem

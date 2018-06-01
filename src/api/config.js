@@ -17,41 +17,33 @@ export function configHttp() {
   let host = window.location.host;
   switch (host) {
     case 'b2c.jfinalshop.com': // 新版
-      // axios.defaults.baseURL = 'http://test.omengo.com';
       axios.defaults.baseURL = 'http://b2c.jfinalshop.com'; // 新版
       break;
     case 'test.jfinalshop.com':
       axios.defaults.baseURL = 'http://test.jfinalshop.com';
       break;
     case 'localhost:8080' :
-      // axios.defaults.baseURL = 'http://192.168.9.43:8089';
-      axios.defaults.baseURL = 'http://192.168.9.43:8060'; // 新版
-      // axios.defaults.baseURL = 'http://192.168.9.33:8080'; // 元哥
-      // axios.defaults.baseURL = 'http://192.168.9.31:8080'; // 啊聪
-      // axios.defaults.baseURL = 'http://test.omengo.com';
-      // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
+      axios.defaults.baseURL = 'http://b2c.jfinalshop.com'; // 新版
       break;
     case 'localhost:8081' :
       axios.defaults.baseURL = 'http://192.168.9.43:8089';
-      // axios.defaults.baseURL = 'http://192.168.9.33:8080'; // 元哥
-      // axios.defaults.baseURL = 'http://192.168.9.31:8080'; // 啊聪
-      // axios.defaults.baseURL = 'http://test.omengo.com';
       // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
       break;
-    case '192.168.9.76:8080':
-      axios.defaults.baseURL = 'http://b2c.jfinalshop.com'; // 新版
+    case '192.168.9.76:8060':
+      axios.defaults.baseURL = 'http://192.168.9.43:8060'; // 新版
       break;
     case '192.168.9.76:8081':
       axios.defaults.baseURL = 'http://192.168.9.43:8089';
       // axios.defaults.baseURL = 'http://b2b2c.omengo.com';
       break;
     default:
-      // axios.defaults.baseURL = 'http://www.omengo.com';
-      // axios.defaults.baseURL = 'http://192.168.9.43:8089';
-      axios.defaults.baseURL = 'http://www.omengo.com';
+      axios.defaults.baseURL = 'http://b2c.jfinalshop.com';
   }
   axios.interceptors.request.use((config) => {
-    Toast.loading({ mask: true, duration: 0 });
+    Toast.setDefaultOptions({
+      forbidClick: true
+    });
+    Toast.loading({ mask: false, duration: 0 });
     if (config.method === 'post') {
       config.data = qs.stringify(config.data);
     }
@@ -61,7 +53,6 @@ export function configHttp() {
     return Promise.reject(error);
   });
   axios.interceptors.response.use(function (response) {
-    Toast.clear();
     /**
      * ERR_ERROR 都为错误状态码
      */
@@ -73,10 +64,15 @@ export function configHttp() {
       Toast(response.data.message);
       Router.push('/member');
       window.localStorage.clear();
+      window.location.reload();
     }
 
     if (response.data.code === SERVER_ERROR) {
-      Toast(response.data.message);
+      // Toast(response.data.message);
+      Toast('server error');
+    }
+    if (response.data) {
+      Toast.clear();
     }
     return response;
   }, function (error) {

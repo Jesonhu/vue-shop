@@ -199,7 +199,7 @@
               display: inline-block
             .text
               position: relative
-              top: .02rem
+              top: .04rem
             .img
               width: .35rem
               height: .35rem

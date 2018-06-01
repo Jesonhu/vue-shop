@@ -14,7 +14,7 @@
           </div>
         </div>
       </scroll>
-      <div class="category-right" v-if="goodsList" >
+      <div class="category-right" v-if="goodsList">
         <div class="right-title">
           <div class="title-wrapper">
             <span class="title" @click="toggleModal('all')">
@@ -88,23 +88,25 @@
                    @scrollToEnd="loadMore"
                    class="list-goods">
             </goods>
-            <loaded-bottom v-show="goodsList.lastPage"></loaded-bottom>
+            <loaded-bottom v-show="goodsList.lastPage">
+            </loaded-bottom>
           </div>
         </scroll>
 
-        <empty src="category" text="哭瞎,没有该商品" v-if="goodsList.list.length === 0"></empty>
+        <empty src="category" text="哭瞎,没有该商品" v-if="goodsList.list.length === 0">
+        </empty>
       </div>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import { ERR_OK } from 'api/config';
+  import { findRoots, findChildren, findProducts } from 'api/category';
   import Scroll from 'base/scroll/scroll';
   import Goods from 'base/goods/goods';
   import LoadedBottom from 'base/loaded-bottom/loaded-bottom';
   import Empty from 'base/empty/empty';
-  import { findRoots, findChildren, findProducts } from 'api/category';
-  import { ERR_OK } from 'api/config';
   import Loading from 'base/loading/loading';
 
   const TYPE = {
@@ -145,6 +147,7 @@
     methods: {
       changeFirstIndex(index) {
         this.allText = '全部分类';
+        this.sortText = '综合排序';
         this.modalStatus = false;
         this.secondIndex = null;
 
@@ -156,10 +159,16 @@
         this.secondIndex = index;
         this.allText = this.secondCategory[index].name;
         this._findProducts(this.secondCategory[index].id);
+        this.$refs.scroll.scrollTo(0, 0);
       },
       changeTypeIndex(index) {
         this.typeIndex = index;
         this.sortText = this.sortTypes[index].name;
+        const id = this.firstCategory[this.firstIndex].id;
+        const orderType = this.sortTypes[index].type;
+        const pageNumber = 1;
+        this._findProducts(id, pageNumber, orderType);
+        this.$refs.scroll.scrollTo(0, 0);
       },
       toggleModal(modal) {
         if (!this.modalStatus) {
@@ -178,6 +187,9 @@
         } else {
           this.goodsListType = TYPE.grid;
         }
+        setTimeout(() => {
+          this.$refs.scroll.refresh();
+        }, 20);
       },
       _findRoots() {
         findRoots().then((res) => {
@@ -195,8 +207,8 @@
           }
         });
       },
-      _findProducts(categoryId, pageNumber) {
-        findProducts(categoryId, pageNumber).then((res) => {
+      _findProducts(categoryId, pageNumber, orderType) {
+        findProducts(categoryId, pageNumber, orderType).then((res) => {
           if (res.code === ERR_OK) {
             res.datum.list.forEach((item) => {
               item.image = res.imageUrl + item.image;
@@ -221,7 +233,8 @@
           return;
         }
         const pageNumber = this.goodsList.pageNumber + 1;
-        this._findProducts(this.currentCategoryId, pageNumber);
+        const orderType = this.typeIndex && this.sortTypes[this.typeIndex].type;
+        this._findProducts(this.currentCategoryId, pageNumber, orderType);
       }
     },
     components: {

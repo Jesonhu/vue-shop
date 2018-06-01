@@ -33,16 +33,18 @@
         <div class="method">微信支付</div>
       </div>
 
-      <fixed-bottom-btn :text="'支付'" :active="true" @click.native="_payment"></fixed-bottom-btn>
+      <fixed-bottom-btn :text="'支付'" :active="true" @click.native="_pay">
+      </fixed-bottom-btn>
     </div>
   </transition>
 </template>
 
 <script type="text/ecmascript-6">
   import { mapGetters } from 'vuex';
-  import { getPayInfo } from 'api/pay';
+  import { getPayInfo, pay } from 'api/pay';
   import { getToken } from 'common/js/cache';
   import { ERR_OK } from 'api/config';
+  import { Toast } from 'vant';
   import Navbar from 'base/navbar/navbar';
   import FixedBottomBtn from 'base/fixed-bottom-btn/fixed-bottom-btn';
 
@@ -72,15 +74,47 @@
       }
     },
     methods: {
-      _payment() {
-        this.$router.push('/pay_result');
-      },
       _getPayInfo() {
         getPayInfo(getToken(), this.$route.params.sn).then((res) => {
           if (res.code === ERR_OK) {
             this.payInfo = res.datum;
           }
         });
+      },
+      _pay() {
+        pay(getToken(), this.payInfo.sn, this.payInfo.amount).then((res) => {
+          let _this = this;
+          let data = JSON.parse(res.data);
+          if (res.code === 0) {
+            if (typeof WeixinJSBridge === 'undefined') {
+              if (document.addEventListener) {
+                document.addEventListener('WeixinJSBridgeReady', _this.onBridgeReady(data), false);
+              } else if (document.attachEvent) {
+                document.attachEvent('WeixinJSBridgeReady', _this.onBridgeReady(data));
+                document.attachEvent('onWeixinJSBridgeReady', _this.onBridgeReady(data));
+              }
+            } else {
+              _this.onBridgeReady(data);
+            }
+          }
+        });
+      },
+      onBridgeReady(json) {
+        /* eslint-disable */
+        const _this = this;
+        WeixinJSBridge.invoke('getBrandWCPayRequest', json, function (res) {
+            // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回 ok，但并不保证它绝对可靠。
+            if (res.err_msg === 'get_brand_wcpay_request:ok') {
+              Toast('支付成功!');
+              _this.$router.push(`/pay_result/${_this.payInfo.sn}`);
+            } else if (res.err_msg === 'get_brand_wcpay_request:cancel') {
+              Toast('支付取消!');
+            } else {
+              Toast('支付失败!');
+            }
+          }
+        );
+        /* eslint-enable */
       }
     },
     components: {

@@ -36,7 +36,7 @@
         }
       },
       onClickRight() {
-        this.$emit('righClick');
+        this.$emit('rightClick');
       }
     },
     components: {

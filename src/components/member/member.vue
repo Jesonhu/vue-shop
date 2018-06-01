@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="user-wrapper">
     <div class="user-container">
       <img class="user-poster" src="./member_bg.jpg">
       <div class="avatar">
@@ -39,8 +39,9 @@
                 @click.native="toOrderPage(0)"/>
     </van-cell-group>
 
-    <van-cell-group class="user-group">
-      <van-cell class="group-item" icon="exchange" title="我的地址" is-link @click.native="toPage('/address/member')"/>
+    <van-cell-group class="user-group-hook">
+      <van-cell class="group-item group-item-link" icon="exchange" title="我的地址" is-link
+                @click.native="toPage('/address/member')"/>
       <van-cell class="group-item" icon="gold-coin" title="我的优惠券" is-link @click.native="toPage('/coupon/all')"/>
       <van-cell class="group-item" icon="gift" title="收藏商品" is-link @click.native="toPage('/favorite')"/>
       <van-cell class="group-item" icon="edit" title="设置" is-link @click.native="toPage('/setting')"/>
@@ -90,6 +91,7 @@
         if (newRoute.name === '会员') {
           if (getToken()) {
             this._getOrderList();
+            this.setUserInfo(getUserInfo());
           } else {
             this.pendingPayment = null;
             this.pendingReview = null;
@@ -171,6 +173,19 @@
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
+  @import '~common/stylus/mixin'
+
+  .user-wrapper
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    bottom: 50px
+    background: $color-background
+    .group-item-link
+      position: relative
+      &::before
+        border-bottom-1px(#ddd)
 
   .user-container
     position: relative
@@ -208,10 +223,13 @@
       display: block
       padding-bottom: .1rem
       font-size: $font-size-large-d
+
+  .user-group-hook
+    margin-top: 10px
 </style>
 
 <style lang="stylus" ref="stylesheet/stylus">
-  .van-cell__text
-    position: relative
-    top: 2px
+  /*.van-cell__text*/
+  /*position: relative*/
+  /*top: 2px*/
 </style>
