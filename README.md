@@ -40,4 +40,12 @@ npm run build --report
 
 ## 扫码查看VUE商城演示界面
 [查看demo请戳这里](http://b2c.jfinalshop.com/web/?#/home)（请用chrome手机模式预览）
+
 ![二维码](https://static.oschina.net/uploads/space/2018/0307/153652_K7Fq_566102.png)
+
+## 说明
+* 如果对您有帮助，您可以点右上角 "Star" 支持一下 谢谢！ ^_^
+* 如有问题请直接在 Issues 中提，或者您发现问题并有非常好的解决方案，欢迎 PR 👍
+
+## 效果图
+![首页](https://ws2.sinaimg.cn/large/006tKfTcgy1frz4svf035j30aq0isq3r.jpg)![首页gif](https://ws4.sinaimg.cn/large/006tKfTcgy1frz4sxhspyg309i0gnqv5.gif)
