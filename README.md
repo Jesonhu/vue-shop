@@ -47,5 +47,9 @@ npm run build --report
 * 如果对您有帮助，您可以点右上角 "Star" 支持一下 谢谢！ ^_^
 * 如有问题请直接在 Issues 中提，或者您发现问题并有非常好的解决方案，欢迎 PR 👍
 
-## 效果图
-![首页](https://ws2.sinaimg.cn/large/006tKfTcgy1frz4svf035j30aq0isq3r.jpg)![首页gif](https://ws4.sinaimg.cn/large/006tKfTcgy1frz4sxhspyg309i0gnqv5.gif)
+## 部分效果图
+![首页](https://ws2.sinaimg.cn/large/006tKfTcgy1frz4svf035j30aq0isq3r.jpg)![加入购物车](https://ws3.sinaimg.cn/large/006tKfTcgy1frz4x4sor3j30am0iqjrv.jpg)
+![分类](https://ws1.sinaimg.cn/large/006tKfTcgy1frz4yiknq8j30aj0iqq3h.jpg)![个人](https://ws2.sinaimg.cn/large/006tKfTcgy1frz50oxg4bj30an0ip0tw.jpg)
+![购物车](https://ws4.sinaimg.cn/large/006tKfTcgy1frz52m6scnj30ap0iogm1.jpg)![订单结算](https://ws2.sinaimg.cn/large/006tKfTcgy1frz5389385j30ag0io74k.jpg)
+![支付](https://ws2.sinaimg.cn/large/006tKfTcgy1frz53onczyj30am0ipaa0.jpg)![订单列表](https://ws3.sinaimg.cn/large/006tKfTcgy1frz550ds8uj30am0irglx.jpg)
+![我的地址](https://ws1.sinaimg.cn/large/006tKfTcgy1frz55pgf7kj30ak0iq0sv.jpg)![我的优惠券](https://ws2.sinaimg.cn/large/006tKfTcgy1frz57c9lbmj30ak0inglu.jpg)
