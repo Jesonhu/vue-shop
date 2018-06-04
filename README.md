@@ -3,7 +3,10 @@
 
 ## 技术栈
 
-vue2.0+vuex+axios+stylus+webpack
+vue2.0+vuex+axios+stylus+webpack+ES6
+
+滚动库: better-scroll
+
 移动UI: vant
 
 有赞维护的vant,有很多业务组件,可以开箱即用。所以，选中了它。
@@ -30,17 +33,11 @@ npm run build --report
 
 ## 演示地址
 1、后台 b2c.jfinalshop.com/admin 请点[查看](http://b2c.jfinalshop.com/admin/login.jhtml)
+
 2、用户名/密码：jack/123456
+
 3、API文档地址：请点[查看](http://b2c.jfinalshop.com/swagger.jhtml)
 
-
 ## 扫码查看VUE商城演示界面
+[查看demo请戳这里](http://b2c.jfinalshop.com/web/?#/home)（请用chrome手机模式预览）
 ![二维码](https://static.oschina.net/uploads/space/2018/0307/153652_K7Fq_566102.png)
-## Seting API API Url
-
-Find the file for the api/config.js
-```
-example:
-
-axios.defaults.baseURL = 'your API Url';
-```
