@@ -28,6 +28,14 @@ npm run build
 npm run build --report
 ```
 
+## 演示地址
+1、后台 b2c.jfinalshop.com/admin 请点[查看](http://b2c.jfinalshop.com/admin/login.jhtml)
+2、用户名/密码：jack/123456
+3、API文档地址：请点[查看](http://b2c.jfinalshop.com/swagger.jhtml)
+
+
+## 扫码查看VUE商城演示界面
+![二维码](https://static.oschina.net/uploads/space/2018/0307/153652_K7Fq_566102.png)
 ## Seting API API Url
 
 Find the file for the api/config.js
